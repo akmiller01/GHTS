@@ -223,7 +223,7 @@ class Entry(models.Model):
             ,"C" if self.concessional else "N"
             ,self.pledge_or_disbursement if self.pledge_or_disbursement else ""
             ,self.recipient if self.recipient else ""
-            ,self.sector if self.sector else ""
+            ,self.sector.__unicode__ if self.sector else ""
             ,self.channel_of_delivery if self.channel_of_delivery else ""
             ,self.refugee_facility_for_turkey if self.refugee_facility_for_turkey else ""
             ,"A" if self.appeal else "N"
