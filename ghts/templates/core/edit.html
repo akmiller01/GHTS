@@ -60,6 +60,9 @@
     In order to check your data, press ‘Export previously saved data’.
     </p>
     <p>
+        Use the multi-year funding box to provide details (contributions to date, number of years covered, specific institutions etc) about multi-year agreements you have in place. If relevant please explain if these cover UN coordinated appeals.
+    </p>
+    <p>
     Email <a href="mailto:syriatracking@devinit.org">syriatracking@devinit.org</a> for any clarifications or if you have any issues. 
     </p>
     <h3>Key definitions:</h3>
@@ -154,7 +157,21 @@
         });
     </script>
     <form method="POST" class="transaction-form">{% csrf_token %}
-        {{ form.as_p }}
+        <div class="fieldWrapper">
+            {{ form.currency.errors }}
+            <label for="{{ form.currency.id_for_label }}">Currency:</label>
+            {{ form.currency }}
+        </div>
+        <div class="fieldWrapper">
+            {{ form.comment.errors }}
+            <label for="{{ form.comment.id_for_label }}">Comments:</label>
+            {{ form.comment }}
+        </div>
+        <div class="fieldWrapper" style="padding-top:10px">
+            {{ form.multiyear_comment.errors }}
+            <label for="{{ form.multiyear_comment.id_for_label }}">Multi-year details:</label>
+            {{ form.multiyear_comment }}
+        </div>
     {% if organisation.grant_making %}
     <div class="titleWrap">
         <h2>Grants</h2>
@@ -174,7 +191,44 @@
         <tr>
             <td><b>{{status}}</b></td>
             {% for rcode, recip in recipients %}
-                <td><input type="text" name="G|C|{{scode}}|{{rcode}}|||"/></td>
+                <td><input type="text" name="G|C|{{scode}}|{{rcode}}||||N|"/></td>
+            {% endfor %}
+        </tr>
+    {% endfor %}
+    <tr>
+        <td><b>Total</b></td>
+        {% for rcode, recip in recipients %}
+            <td><input type="text" name="total_grants" id="{{rcode}}_total" readonly/></td>
+        {% endfor %}
+    </tr>
+    <tr>
+        <td><b>Remaining to be contributed of the pledge</b></td>
+        {% for rcode, recip in recipients %}
+            <td><input type="text" name="remaining_grants" id="{{rcode}}_remaining" readonly/></td>
+        {% endfor %}
+    </tr>
+    </table>
+    {% endif %}
+    {% if organisation.government %}
+    <div class="titleWrap">
+        <h2>Grants via appeal</h2>
+        <!--<div class="info" onclick="toggle('grants')"></div>
+        <div class="popupWrap">
+            <div class="popup" id="grants">Information on grants</div>
+        </div>-->
+    </div>
+    <table>
+        <tr>
+            <th></th>
+            {% for rcode, recip in recipients %}
+                <th>{{recip}}</th>
+            {% endfor %}
+        </tr>
+    {% for scode, status in appeal_statuses %}
+        <tr>
+            <td><b>{{status}}</b></td>
+            {% for rcode, recip in recipients %}
+                <td><input type="text" name="G|C||{{rcode}}||||A|{{scode}}"/></td>
             {% endfor %}
         </tr>
     {% endfor %}
@@ -199,7 +253,7 @@
         <tr>
             <td><b>{{status}}</b></td>
             {% for rcode, recip in recipients %}
-                <td><input type="text" name="L|C|{{scode}}|{{rcode}}|||"/></td>
+                <td><input type="text" name="L|C|{{scode}}|{{rcode}}||||N|"/></td>
             {% endfor %}
         </tr>
     {% endfor %}
@@ -222,7 +276,7 @@
         <tr>
             <td><b>{{status}}</b></td>
             {% for rcode, recip in recipients %}
-                <td><input type="text" name="L|N|{{scode}}|{{rcode}}|||"/></td>
+                <td><input type="text" name="L|N|{{scode}}|{{rcode}}||||N|"/></td>
             {% endfor %}
         </tr>
     {% endfor %}
@@ -251,7 +305,7 @@
         <tr>
             <td><b>{{status}}</b></td>
             {% for fcode, facility in facilities %}
-                <td><input type="text" name="G|C|{{scode}}|T|||{{fcode}}"/></td>
+                <td><input type="text" name="G|C|{{scode}}|T|||{{fcode}}|N|"/></td>
             {% endfor %}
         </tr>
     {% endfor %}
@@ -277,7 +331,7 @@
         <tr>
             <td><b>{{sector}}</b></td>
             {% for rcode, recip in recipients %}
-                <td><input type="text" name="G|C||{{rcode}}|{{sector}}||"/></td>
+                <td><input type="text" name="G|C||{{rcode}}|{{sector}}|||N|"/></td>
             {% endfor %}
         </tr>
         {% endif %}
@@ -304,7 +358,7 @@
         <tr>
             <td><b>{{sector}}</b></td>
             {% for rcode, recip in recipients %}
-                <td><input type="text" name="L|||{{rcode}}|{{sector}}||"/></td>
+                <td><input type="text" name="L|||{{rcode}}|{{sector}}|||N|"/></td>
             {% endfor %}
         </tr>
         {% endif %}
@@ -330,7 +384,7 @@
         <tr>
             <td><b>{{channel}}</b></td>
             {% for rcode, recip in recipients %}
-                <td><input type="text" name="G|C||{{rcode}}||{{ccode}}|"/></td>
+                <td><input type="text" name="G|C||{{rcode}}||{{ccode}}||N|"/></td>
             {% endfor %}
         </tr>
     {% endfor %}
@@ -355,7 +409,7 @@
         <tr>
             <td><b>{{channel}}</b></td>
             {% for rcode, recip in recipients %}
-                <td><input type="text" name="L|||{{rcode}}||{{ccode}}|"/></td>
+                <td><input type="text" name="L|||{{rcode}}||{{ccode}}||N|"/></td>
             {% endfor %}
         </tr>
     {% endfor %}
@@ -451,6 +505,20 @@
                 return dialogText;
             };
         }
+        //Summarize for total
+        {% for rcode, recip in recipients %}
+            pledged = 0
+            committed = 0
+            {% for scode, status in statuses %}
+                {% if status=="Pledged" %}
+                pledged += parseFloat($("input[name='G|C|{{scode}}|{{rcode}}||||N|']").val().replace("{{currency.symbol}}",""))
+                {% else %}
+                committed += parseFloat($("input[name='G|C|{{scode}}|{{rcode}}||||N|']").val().replace("{{currency.symbol}}",""))
+                {% endif %}
+            {% endfor %}
+            $("input#{{rcode}}_total").val(isNaN(committed)?"":"{{currency.symbol}}"+committed)
+            $("input#{{rcode}}_remaining").val(isNaN(committed-pledged)?"":"{{currency.symbol}}"+(committed-pledged))
+        {% endfor %}
     });
     $('textarea').change(function() {
         if( $(this).val() != "" ){

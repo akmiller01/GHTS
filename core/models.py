@@ -77,6 +77,7 @@ class Spreadsheet(models.Model):
     currency = models.ForeignKey(Currency)
     organisation = models.ForeignKey(Organisation)
     comment = models.TextField(null=True,blank=True)
+    multiyear_comment = models.TextField(null=True,blank=True)
     
     def get_absolute_url(self):
         return reverse("core.views.edit",args=[self.year])
@@ -125,8 +126,16 @@ class Entry(models.Model):
         ('L','Contributions relating to London Conference pledges'),
         ('N','Contributions beyond London Conference pledges')
     )
+    APPEAL_STATUS_CHOICES = (
+        ('P','Amount pledged for appeal'),
+        ('V','How much of the appeal pledge via conference pledge'),
+        ('C','Contributions for appeal so far'),
+        ('H','Contributions via appeal part of conference pledge'),
+    )
     loan_or_grant = models.CharField(max_length=1,choices=LOAN_OR_GRANT_CHOICES,blank=True,null=True)
     concessional = models.BooleanField(default=True)
+    appeal = models.BooleanField(default=False)
+    appeal_status = models.CharField(max_length=1,choices=APPEAL_STATUS_CHOICES,blank=True,null=True)
     pledge_or_disbursement = models.CharField(max_length=1,choices=PLEDGE_OR_DISB_CHOICES,blank=True,null=True)
     recipient = models.CharField(max_length=1,choices=RECIPIENT_CHOICES,default="N")
     channel_of_delivery = models.CharField(max_length=1,choices=DELIVERY_CHOICES,blank=True,null=True)
@@ -152,6 +161,12 @@ class Entry(models.Model):
         return val
     def facility_lookup(self):
         val = self.coordinates.split("|")[6]
+        return val
+    def appeal_lookup(self):
+        val = self.coordinates.split("|")[7]
+        return val=="A"
+    def appeal_status_lookup(self):
+        val = self.coordinates.split("|")[8]
         return val
     def loan_or_grant_translate(self):
         val = self.coordinates.split("|")[0]
@@ -189,7 +204,15 @@ class Entry(models.Model):
             return ""
         else:
             return dict(Entry.FACILITY_CHOICES)[val]
-
+    def appeal_translate(self):
+        val = self.coordinates.split("|")[7]
+        return val=="A"
+    def appeal_status_translate(self):
+        val = self.coordinates.split("|")[8]
+        if val is None or val=="":
+            return ""
+        else:
+            return dict(Entry.APPEAL_STATUS_CHOICES)[val]
     class Meta:
         verbose_name_plural = "entries"
         
@@ -203,6 +226,8 @@ class Entry(models.Model):
             ,self.sector if self.sector else ""
             ,self.channel_of_delivery if self.channel_of_delivery else ""
             ,self.refugee_facility_for_turkey if self.refugee_facility_for_turkey else ""
+            ,"A" if self.appeal else "N"
+            ,self.appeal_status if self.appeal_status else ""
         ]
         self.coordinates = "|".join(coord_list)
         super(Entry, self).save(*args, **kwargs)
@@ -216,6 +241,8 @@ class Entry(models.Model):
         if Sector.objects.filter(name=self.sector_lookup(),loan_or_grant=self.loan_or_grant_lookup()).exists():
             self.sector = Sector.objects.get(name=self.sector_lookup(),loan_or_grant=self.loan_or_grant_lookup())
         self.refugee_facility_for_turkey = self.facility_lookup()
+        self.appeal = self.appeal_lookup()
+        self.appeal_status = self.appeal_status_lookup()
         super(Entry, self).save(*args, **kwargs)
 
 
