@@ -507,8 +507,8 @@
                 committed += parseFloat($("input[name='G|C|{{scode}}|{{rcode}}||||N|']").val().replace("{{currency.symbol}}","").replace(/,/g,"")==""?0:$("input[name='G|C|{{scode}}|{{rcode}}||||N|']").val().replace("{{currency.symbol}}","").replace(/,/g,""))
                 {% endif %}
             {% endfor %}
-            $("input#{{rcode}}_total").val(isNaN(committed)?"":"{{currency.symbol}}"+committed.replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,"))
-            $("input#{{rcode}}_remaining").val(isNaN(committed-pledged)?"":"{{currency.symbol}}"+(committed-pledged).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,"))
+            $("input#{{rcode}}_total").val(isNaN(committed)?"":"{{currency.symbol}}"+committed.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,"))
+            $("input#{{rcode}}_remaining").val(isNaN(committed-pledged)?"":"{{currency.symbol}}"+(committed-pledged).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,"))
         {% endfor %}
 //    Functions to warn if leaving and changes made
     $('input').change(function() {
@@ -530,8 +530,8 @@
                 committed += parseFloat($("input[name='G|C|{{scode}}|{{rcode}}||||N|']").val().replace("{{currency.symbol}}","").replace(/,/g,"")==""?0:$("input[name='G|C|{{scode}}|{{rcode}}||||N|']").val().replace("{{currency.symbol}}","").replace(/,/g,""))
                 {% endif %}
             {% endfor %}
-            $("input#{{rcode}}_total").val(isNaN(committed)?"":"{{currency.symbol}}"+committed.replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,"))
-            $("input#{{rcode}}_remaining").val(isNaN(committed-pledged)?"":"{{currency.symbol}}"+(committed-pledged).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,"))
+            $("input#{{rcode}}_total").val(isNaN(committed)?"":"{{currency.symbol}}"+committed.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,"))
+            $("input#{{rcode}}_remaining").val(isNaN(committed-pledged)?"":"{{currency.symbol}}"+(committed-pledged).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,"))
         {% endfor %}
     });
     $('textarea').change(function() {
