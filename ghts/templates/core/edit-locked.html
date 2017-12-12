@@ -514,9 +514,9 @@
             committed = 0
             {% for scode, status in statuses %}
                 {% if status == "Pledged" %}
-                pledged += parseFloat($("input[name='G|C|{{scode}}|{{rcode}}||||N|']").val().replace("{{currency.symbol}}","")==""?0:$("input[name='G|C|{{scode}}|{{rcode}}||||N|']").val().replace("{{currency.symbol}}",""))
+                pledged += parseFloat($("input[name='G|C|{{scode}}|{{rcode}}||||N|']").val().replace("{{currency.symbol}}","").replace(",","")==""?0:$("input[name='G|C|{{scode}}|{{rcode}}||||N|']").val().replace("{{currency.symbol}}","").replace(",",""))
                 {% else %}
-                committed += parseFloat($("input[name='G|C|{{scode}}|{{rcode}}||||N|']").val().replace("{{currency.symbol}}","")==""?0:$("input[name='G|C|{{scode}}|{{rcode}}||||N|']").val().replace("{{currency.symbol}}",""))
+                committed += parseFloat($("input[name='G|C|{{scode}}|{{rcode}}||||N|']").val().replace("{{currency.symbol}}","").replace(",","")==""?0:$("input[name='G|C|{{scode}}|{{rcode}}||||N|']").val().replace("{{currency.symbol}}","").replace(",",""))
                 {% endif %}
             {% endfor %}
             $("input#{{rcode}}_total").val(isNaN(committed)?"":"{{currency.symbol}}"+committed)
@@ -537,9 +537,9 @@
             committed = 0
             {% for scode, status in statuses %}
                 {% if status == "Pledged" %}
-                pledged += parseFloat($("input[name='G|C|{{scode}}|{{rcode}}||||N|']").val().replace("{{currency.symbol}}","")==""?0:$("input[name='G|C|{{scode}}|{{rcode}}||||N|']").val().replace("{{currency.symbol}}",""))
+                pledged += parseFloat($("input[name='G|C|{{scode}}|{{rcode}}||||N|']").val().replace("{{currency.symbol}}","").replace(",","")==""?0:$("input[name='G|C|{{scode}}|{{rcode}}||||N|']").val().replace("{{currency.symbol}}","").replace(",",""))
                 {% else %}
-                committed += parseFloat($("input[name='G|C|{{scode}}|{{rcode}}||||N|']").val().replace("{{currency.symbol}}","")==""?0:$("input[name='G|C|{{scode}}|{{rcode}}||||N|']").val().replace("{{currency.symbol}}",""))
+                committed += parseFloat($("input[name='G|C|{{scode}}|{{rcode}}||||N|']").val().replace("{{currency.symbol}}","").replace(",","")==""?0:$("input[name='G|C|{{scode}}|{{rcode}}||||N|']").val().replace("{{currency.symbol}}","").replace(",",""))
                 {% endif %}
             {% endfor %}
             $("input#{{rcode}}_total").val(isNaN(committed)?"":"{{currency.symbol}}"+committed)
