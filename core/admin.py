@@ -2,6 +2,10 @@ from django.contrib import admin
 from core.models import Contact, Organisation, Currency, Sector, Spreadsheet, Entry
 # Register your models here.
 
+def refresh_coordinates(modeladmin,request,queryset):
+    for e in queryset:
+        e.save()
+
 class ContactInline(admin.TabularInline):
     model = Contact
 
@@ -77,6 +81,7 @@ class EntryAdmin(admin.ModelAdmin):
                     ,"channel_of_delivery"
                     ,"refugee_facility_for_turkey"
                     ]
+    actions = [refresh_coordinates]
     def number(self,obj):
         return obj.pk
     def organisation(self,obj):
