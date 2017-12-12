@@ -508,6 +508,20 @@
     {% for entry in entries %}
         $( "input[name='{{entry.coordinates}}']" ).val("{{entry.amount}}"=="None"?"":"{{currency.symbol}}"+"{{entry.amount}}".replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,"))
     {% endfor %}
+    //Summarize for total
+    {% for rcode, recip in recipients %}
+        pledged = 0
+        committed = 0
+        {% for scode, status in statuses %}
+            {% if status == "Pledged" %}
+            pledged += parseFloat($("input[name='G|C|{{scode}}|{{rcode}}||||N|']").val().replace("{{currency.symbol}}",""))
+            {% else %}
+            committed += parseFloat($("input[name='G|C|{{scode}}|{{rcode}}||||N|']").val().replace("{{currency.symbol}}",""))
+            {% endif %}
+        {% endfor %}
+        $("input#{{rcode}}_total").val(isNaN(committed)?"":"{{currency.symbol}}"+committed)
+        $("input#{{rcode}}_remaining").val(isNaN(committed-pledged)?"":"{{currency.symbol}}"+(committed-pledged))
+    {% endfor %}
 //    Functions to warn if leaving and changes made
     $('input').change(function() {
         if( $(this).val() != "" ){
