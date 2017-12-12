@@ -508,7 +508,7 @@
                 {% endif %}
             {% endfor %}
             $("input#{{rcode}}_total").val(isNaN(committed)?"":"{{currency.symbol}}"+committed.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,"))
-            $("input#{{rcode}}_remaining").val(isNaN(committed-pledged)?"":"{{currency.symbol}}"+(committed-pledged).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,"))
+            $("input#{{rcode}}_remaining").val(isNaN(pledged-committed)?"":"{{currency.symbol}}"+(pledged-committed).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,"))
         {% endfor %}
 //    Functions to warn if leaving and changes made
     $('input').change(function() {
@@ -531,7 +531,7 @@
                 {% endif %}
             {% endfor %}
             $("input#{{rcode}}_total").val(isNaN(committed)?"":"{{currency.symbol}}"+committed.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,"))
-            $("input#{{rcode}}_remaining").val(isNaN(committed-pledged)?"":"{{currency.symbol}}"+(committed-pledged).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,"))
+            $("input#{{rcode}}_remaining").val(isNaN(pledged-committed)?"":"{{currency.symbol}}"+(pledged-committed).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,"))
         {% endfor %}
     });
     $('textarea').change(function() {
