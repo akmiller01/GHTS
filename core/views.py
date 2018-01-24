@@ -51,10 +51,11 @@ def edit(request,year):
         new_sector_dict = {}
         for key, value in queryDict.iteritems():
             if key in sector_range:
-                new_sector_dict[key] = value
-                new_sector = Sector(name=value,loan_or_grant="G")
-                new_sector.save()
-                organisation.sectors.add(new_sector)
+                if value!="":
+                    new_sector_dict[key] = value
+                    new_sector = Sector(name=value,loan_or_grant="L")
+                    new_sector.save()
+                    organisation.sectors.add(new_sector)
         excludeKeys = ["currency","comment","multiyear_comment","total_grants","remaining_grants","csrfmiddlewaretoken"]+sector_range
         for key, value in queryDict.iteritems():
             if Entry.objects.filter(spreadsheet=spreadsheet,coordinates=key).exists():
@@ -216,10 +217,11 @@ def adminEdit(request,slug,year):
         new_sector_dict = {}
         for key, value in queryDict.iteritems():
             if key in sector_range:
-                new_sector_dict[key] = value
-                new_sector = Sector(name=value,loan_or_grant="G")
-                new_sector.save()
-                organisation.sectors.add(new_sector)
+                if value!="":
+                    new_sector_dict[key] = value
+                    new_sector = Sector(name=value,loan_or_grant="G")
+                    new_sector.save()
+                    organisation.sectors.add(new_sector)
         excludeKeys = ["currency","comment","multiyear_comment","total_grants","remaining_grants","csrfmiddlewaretoken"]+sector_range
         for key, value in queryDict.iteritems():
             if Entry.objects.filter(spreadsheet=spreadsheet,coordinates=key).exists():
