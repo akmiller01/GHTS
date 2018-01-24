@@ -386,7 +386,7 @@
     {% if contact.organisation.bank %}
         {% for sector in sector_range %}
         <tr>
-            <td><b><input type="text" name="{{sector}}" placeholder="Additional sector"></input></b></td>
+            <td><b><input type="text" name="{{sector}}" placeholder="Add sector"></input></b></td>
             {% for rcode, recip in recipients %}
                 <td><input type="text" name="L|||{{rcode}}|{{sector}}|||N|"/></td>
             {% endfor %}
