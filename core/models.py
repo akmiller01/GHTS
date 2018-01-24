@@ -42,6 +42,7 @@ class Organisation(models.Model):
     grant_making = models.BooleanField(default=True)
     loan_making = models.BooleanField(default=True)
     government = models.BooleanField(default=True)
+    bank = models.BooleanField(default=False)
     sectors = models.ManyToManyField(Sector,related_name="sectors",related_query_name="sector",blank=True)
     
     class Meta:
@@ -123,13 +124,13 @@ class Entry(models.Model):
         ('O','Other channel of delivery (please detail in the comments box)'),
     )
     FACILITY_CHOICES = (
-        ('L','Contributions relating to London Conference pledges'),
-        ('N','Contributions beyond London Conference pledges')
+        ('L','Contributions to Facility for Refugees in Turkey'),
+        ('N','Contributions to Turkey excluding those to the Facility for Refugees in Turkey')
     )
     APPEAL_STATUS_CHOICES = (
         ('P','Amount pledged for appeal'),
         ('V','How much of the appeal pledge via conference pledge'),
-        ('C','Contributions for appeal so far'),
+        ('C','Contributions for UN-coordinated appeals so far'),
         ('H','Contributions via appeal part of conference pledge'),
     )
     loan_or_grant = models.CharField(max_length=1,choices=LOAN_OR_GRANT_CHOICES,blank=True,null=True)

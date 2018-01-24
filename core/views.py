@@ -14,7 +14,7 @@ from itertools import chain, groupby
 @login_required
 def edit(request,year):
     warnings = []
-    facility_years = [2016,2017]
+    sector_range = ["new_sector{}".format(i) for i in range(1,7)]
     user = request.user
     contact = get_object_or_404(Contact,user=user)
     organisation = contact.organisation
@@ -47,7 +47,15 @@ def edit(request,year):
             spreadsheet = Spreadsheet.objects.get(organisation=organisation,year=year)
             form = SpreadsheetForm(request.POST,instance=spreadsheet)
             spreadsheet = form.save()
-        excludeKeys = ["currency","comment","multiyear_comment","total_grants","remaining_grants","csrfmiddlewaretoken"]
+        #Look for new sectors
+        new_sector_dict = {}
+        for key, value in queryDict.iteritems():
+            if key in sector_range:
+                new_sector_dict[key] = value
+                new_sector = Sector(name=value,loan_or_grant="G")
+                new_sector.save()
+                organisation.sectors.add(new_sector)
+        excludeKeys = ["currency","comment","multiyear_comment","total_grants","remaining_grants","csrfmiddlewaretoken"]+sector_range
         for key, value in queryDict.iteritems():
             if Entry.objects.filter(spreadsheet=spreadsheet,coordinates=key).exists():
                 entry = Entry.objects.get(spreadsheet=spreadsheet,coordinates=key)
@@ -59,6 +67,12 @@ def edit(request,year):
             elif key not in excludeKeys and value!="":
                 entry = Entry()
                 entry.spreadsheet = spreadsheet
+                split_coords = key.split("|")
+                entry_sector = split_coords[4]
+                if entry_sector in sector_range:
+                    new_sector = new_sector_dict[entry_sector]
+                    split_coords[4] = new_sector
+                    key = "|".join(split_coords)
                 entry.coordinates = key
                 if safeFloat(value)>=0:
                     entry.amount = safeFloat(value)
@@ -77,9 +91,9 @@ def edit(request,year):
             gt_sum = gt.values('recipient').annotate(total = Sum('amount')).order_by('recipient')
             gt_sum_obj = {this_sum['recipient']:this_sum['total'] for this_sum in gt_sum} 
             #Facilities contributions
-            # fc = entries.filter(spreadsheet=spreadsheet,loan_or_grant="G",concessional=True,refugee_facility_for_turkey=True).exclude(pledge_or_disbursement="P")
-            # fc_sum = fc.values('recipient').annotate(total = Sum('amount')).order_by('recipient')
-            # fc_sum_obj = {this_sum['recipient']:this_sum['total'] for this_sum in fc_sum} 
+            fc = entries.filter(spreadsheet=spreadsheet,loan_or_grant="G",concessional=True,refugee_facility_for_turkey=True).exclude(pledge_or_disbursement="P")
+            fc_sum = fc.values('recipient').annotate(total = Sum('amount')).order_by('recipient')
+            fc_sum_obj = {this_sum['recipient']:this_sum['total'] for this_sum in fc_sum} 
             #Sector grants
             sg = entries.filter(spreadsheet=spreadsheet,loan_or_grant="G",concessional=True,appeal=False,refugee_facility_for_turkey="",channel_of_delivery="",sector__isnull=False)
             sg_sum = sg.values('recipient').annotate(total = Sum('amount')).order_by('recipient')
@@ -100,6 +114,12 @@ def edit(request,year):
                 # Facility contributions no longer need to add to total grants
                 # if recipient in fc_sum_obj:
                 #     total_grants = total_grants + fc_sum_obj[recipient]
+                if recipient in fc_sum_obj:
+                    facility_sectors = fc_sum_obj[recipient]
+                    if total_grants>facility_sectors:
+                        warnings.append("Warning: Total grants do not equal grants by Facility for Refugees in Turkey. Total grants are greater by %s" % ((total_grants-grant_sectors)))
+                    if total_grants<facility_sectors:
+                        warnings.append("Warning: Total grants do not equal grants by Facility for Refugees in Turkey. Facility for Refugees in Turkey grants are greater by %s" % ((grant_sectors-total_grants)))
                 if recipient in sg_sum_obj:
                     grant_sectors = sg_sum_obj[recipient]
                     if total_grants>grant_sectors:
@@ -153,12 +173,12 @@ def edit(request,year):
             entries = []
             currency = []
             spreadsheet_exists = False
-    return render(request,'core/edit-locked.html', {"warnings":warnings,"user":user,"contact":contact,"form":form,"entries":entries,"recipients":recipients,"statuses":statuses,"facilities":facilities,"appeal_statuses":appeal_statuses,"sectors":sectors,"channels":channels,"years":filtered_years,"selected_year":year,"year_verbose":year_verbose,"currency":currency,"facility_years":facility_years,"spreadsheet_exists":spreadsheet_exists})
+    return render(request,'core/edit-locked.html', {"warnings":warnings,"user":user,"contact":contact,"form":form,"entries":entries,"recipients":recipients,"statuses":statuses,"facilities":facilities,"appeal_statuses":appeal_statuses,"sectors":sectors,"channels":channels,"years":filtered_years,"selected_year":year,"year_verbose":year_verbose,"currency":currency,"sector_range":sector_range,"spreadsheet_exists":spreadsheet_exists})
 
 @login_required
 def adminEdit(request,slug,year):
     warnings = []
-    facility_years = [2016,2017]
+    sector_range = ["new_sector{}".format(i) for i in range(1,7)]
     user = request.user
     if not user.is_staff:
         return redirect("core.views.edit",year=year)
@@ -192,7 +212,15 @@ def adminEdit(request,slug,year):
             spreadsheet = Spreadsheet.objects.get(organisation=organisation,year=year)
             form = SpreadsheetForm(request.POST,instance=spreadsheet)
             spreadsheet = form.save()
-        excludeKeys = ["currency","comment","multiyear_comment","total_grants","remaining_grants","csrfmiddlewaretoken"]
+        #Look for new sectors
+        new_sector_dict = {}
+        for key, value in queryDict.iteritems():
+            if key in sector_range:
+                new_sector_dict[key] = value
+                new_sector = Sector(name=value,loan_or_grant="G")
+                new_sector.save()
+                organisation.sectors.add(new_sector)
+        excludeKeys = ["currency","comment","multiyear_comment","total_grants","remaining_grants","csrfmiddlewaretoken"]+sector_range
         for key, value in queryDict.iteritems():
             if Entry.objects.filter(spreadsheet=spreadsheet,coordinates=key).exists():
                 entry = Entry.objects.get(spreadsheet=spreadsheet,coordinates=key)
@@ -204,6 +232,12 @@ def adminEdit(request,slug,year):
             elif key not in excludeKeys and value!="":
                 entry = Entry()
                 entry.spreadsheet = spreadsheet
+                split_coords = key.split("|")
+                entry_sector = split_coords[4]
+                if entry_sector in sector_range:
+                    new_sector = new_sector_dict[entry_sector]
+                    split_coords[4] = new_sector
+                    key = "|".join(split_coords)
                 entry.coordinates = key
                 if safeFloat(value)>=0:
                     entry.amount = safeFloat(value)
@@ -222,9 +256,9 @@ def adminEdit(request,slug,year):
             gt_sum = gt.values('recipient').annotate(total = Sum('amount')).order_by('recipient')
             gt_sum_obj = {this_sum['recipient']:this_sum['total'] for this_sum in gt_sum} 
             #Facilities contributions
-            # fc = entries.filter(spreadsheet=spreadsheet,loan_or_grant="G",concessional=True,refugee_facility_for_turkey=True).exclude(pledge_or_disbursement="P")
-            # fc_sum = fc.values('recipient').annotate(total = Sum('amount')).order_by('recipient')
-            # fc_sum_obj = {this_sum['recipient']:this_sum['total'] for this_sum in fc_sum} 
+            fc = entries.filter(spreadsheet=spreadsheet,loan_or_grant="G",concessional=True,refugee_facility_for_turkey=True).exclude(pledge_or_disbursement="P")
+            fc_sum = fc.values('recipient').annotate(total = Sum('amount')).order_by('recipient')
+            fc_sum_obj = {this_sum['recipient']:this_sum['total'] for this_sum in fc_sum} 
             #Sector grants
             sg = entries.filter(spreadsheet=spreadsheet,loan_or_grant="G",concessional=True,refugee_facility_for_turkey="",channel_of_delivery="",sector__isnull=False)
             sg_sum = sg.values('recipient').annotate(total = Sum('amount')).order_by('recipient')
@@ -245,6 +279,12 @@ def adminEdit(request,slug,year):
                 # Facility contributions no longer need to add to total grants
                 # if recipient in fc_sum_obj:
                 #     total_grants = total_grants + fc_sum_obj[recipient]
+                if recipient in fc_sum_obj:
+                    facility_sectors = fc_sum_obj[recipient]
+                    if total_grants>facility_sectors:
+                        warnings.append("Warning: Total grants do not equal grants by Facility for Refugees in Turkey. Total grants are greater by %s" % ((total_grants-grant_sectors)))
+                    if total_grants<facility_sectors:
+                        warnings.append("Warning: Total grants do not equal grants by Facility for Refugees in Turkey. Facility for Refugees in Turkey grants are greater by %s" % ((grant_sectors-total_grants)))
                 if recipient in sg_sum_obj:
                     grant_sectors = sg_sum_obj[recipient]
                     if total_grants>grant_sectors:
@@ -298,7 +338,7 @@ def adminEdit(request,slug,year):
             entries = []
             currency = []
             spreadsheet_exists = False
-    return render(request,'core/edit.html', {"warnings":warnings,"user":user,"contact":contact,"organisation":organisation,"form":form,"entries":entries,"recipients":recipients,"statuses":statuses,"facilities":facilities,"appeal_statuses":appeal_statuses,"sectors":sectors,"channels":channels,"years":years,"selected_year":year,"year_verbose":year_verbose,"currency":currency,"facility_years":facility_years,"spreadsheet_exists":spreadsheet_exists})
+    return render(request,'core/edit.html', {"warnings":warnings,"user":user,"contact":contact,"organisation":organisation,"form":form,"entries":entries,"recipients":recipients,"statuses":statuses,"facilities":facilities,"appeal_statuses":appeal_statuses,"sectors":sectors,"channels":channels,"years":years,"selected_year":year,"year_verbose":year_verbose,"currency":currency,"sector_range":sector_range,"spreadsheet_exists":spreadsheet_exists})
 
 @login_required
 def index(request):
