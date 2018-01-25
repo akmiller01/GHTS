@@ -25,7 +25,7 @@
     <h1>Transactions for {{contact.organisation}} in {{year_verbose}}</h1>
     <h3>Instructions to fill in the form <span onclick="$('#instructions').slideToggle()" id="instructTitle">(show/hide)</span></h3>
     <div id="instructions"
-    {% if spreadsheet_exists or selected_year == 2017 or selected_year == 2 %}
+    {% if spreadsheet_exists or selected_year == 3 or selected_year == 4 %}
         style="display:none;"
     {% endif %}
     >
