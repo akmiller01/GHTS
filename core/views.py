@@ -117,6 +117,7 @@ def edit(request,year):
                 grant_pledge = 0
                 if recipient in gt_sum_obj:
                     total_grants = total_grants + gt_sum_obj[recipient]
+                if recipient in gp_sum_obj:
                     grant_pledge = gp_sum_obj[recipient]
                 # Facility contributions no longer need to add to total grants
                 # if recipient in fc_sum_obj:
@@ -289,6 +290,7 @@ def adminEdit(request,slug,year):
                 grant_pledge = 0
                 if recipient in gt_sum_obj:
                     total_grants = total_grants + gt_sum_obj[recipient]
+                if recipient in gp_sum_obj:
                     grant_pledge = gp_sum_obj[recipient]
                 # Facility contributions no longer need to add to total grants
                 # if recipient in fc_sum_obj:
