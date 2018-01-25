@@ -92,11 +92,11 @@ def edit(request,year):
             gt_sum = gt.values('recipient').annotate(total = Sum('amount')).order_by('recipient')
             gt_sum_obj = {this_sum['recipient']:this_sum['total'] for this_sum in gt_sum}
             #Grant pledges table
-            gp = entries.filter(spreadsheet=spreadsheet,loan_or_grant="G",concessional=True,appeal=False,refugee_facility_for_turkey="",channel_of_delivery="",sector__isnull=True,pledge_or_disbursement="P")
+            gp = entries.filter(spreadsheet=spreadsheet,loan_or_grant="G",concessional=True,appeal=False,refugee_facility_for_turkey="",channel_of_delivery="",sector__isnull=True).exclude(pledge_or_disbursement="")
             gp_sum = gp.values('recipient').annotate(total = Sum('amount')).order_by('recipient')
             gp_sum_obj = {this_sum['recipient']:this_sum['total'] for this_sum in gp_sum} 
             #Facilities contributions
-            fc = entries.filter(spreadsheet=spreadsheet,loan_or_grant="G",concessional=True,pledge_or_disbursement="P").exclude(refugee_facility_for_turkey="")
+            fc = entries.filter(spreadsheet=spreadsheet,loan_or_grant="G",concessional=True).exclude(refugee_facility_for_turkey="")
             fc_sum = fc.values('recipient').annotate(total = Sum('amount')).order_by('recipient')
             fc_sum_obj = {this_sum['recipient']:this_sum['total'] for this_sum in fc_sum} 
             #Sector grants
@@ -125,9 +125,9 @@ def edit(request,year):
                 if recipient in fc_sum_obj:
                     facility_pledge = fc_sum_obj[recipient]
                     if grant_pledge>facility_pledge:
-                        warnings.append("Warning: Grant pledges do not equal grant pledges by Facility for Refugees in Turkey. Grant pledges are greater by %s" % ((grant_pledge-facility_pledge)))
+                        warnings.append("Warning: Total grants do not equal grants by Facility for Refugees in Turkey. Total grants are greater by %s" % ((grant_pledge-facility_pledge)))
                     if grant_pledge<facility_pledge:
-                        warnings.append("Warning: Grant pledges do not equal grant pledges by Facility for Refugees in Turkey. Facility for Refugees in Turkey grant pledges are greater by %s" % ((facility_pledge-grant_pledge)))
+                        warnings.append("Warning: Total grants do not equal grants by Facility for Refugees in Turkey. Facility for Refugees in Turkey grants are greater by %s" % ((facility_pledge-grant_pledge)))
                 if recipient in sg_sum_obj:
                     grant_sectors = sg_sum_obj[recipient]
                     if total_grants>grant_sectors:
@@ -265,11 +265,11 @@ def adminEdit(request,slug,year):
             gt_sum = gt.values('recipient').annotate(total = Sum('amount')).order_by('recipient')
             gt_sum_obj = {this_sum['recipient']:this_sum['total'] for this_sum in gt_sum} 
             #Grant pledges table
-            gp = entries.filter(spreadsheet=spreadsheet,loan_or_grant="G",concessional=True,appeal=False,refugee_facility_for_turkey="",channel_of_delivery="",sector__isnull=True,pledge_or_disbursement="P")
+            gp = entries.filter(spreadsheet=spreadsheet,loan_or_grant="G",concessional=True,appeal=False,refugee_facility_for_turkey="",channel_of_delivery="",sector__isnull=True).exclude(pledge_or_disbursement="")
             gp_sum = gp.values('recipient').annotate(total = Sum('amount')).order_by('recipient')
             gp_sum_obj = {this_sum['recipient']:this_sum['total'] for this_sum in gp_sum} 
             #Facilities contributions
-            fc = entries.filter(spreadsheet=spreadsheet,loan_or_grant="G",concessional=True,pledge_or_disbursement="P").exclude(refugee_facility_for_turkey="")
+            fc = entries.filter(spreadsheet=spreadsheet,loan_or_grant="G",concessional=True).exclude(refugee_facility_for_turkey="")
             fc_sum = fc.values('recipient').annotate(total = Sum('amount')).order_by('recipient')
             fc_sum_obj = {this_sum['recipient']:this_sum['total'] for this_sum in fc_sum} 
             #Sector grants
@@ -298,9 +298,9 @@ def adminEdit(request,slug,year):
                 if recipient in fc_sum_obj:
                     facility_pledge = fc_sum_obj[recipient]
                     if grant_pledge>facility_pledge:
-                        warnings.append("Warning: Grant pledges do not equal grant pledges by Facility for Refugees in Turkey. Grant pledges are greater by %s" % ((grant_pledge-facility_pledge)))
+                        warnings.append("Warning: Total grants do not equal grants by Facility for Refugees in Turkey. Total grants are greater by %s" % ((grant_pledge-facility_pledge)))
                     if grant_pledge<facility_pledge:
-                        warnings.append("Warning: Grant pledges do not equal grant pledges by Facility for Refugees in Turkey. Facility for Refugees in Turkey grant pledges are greater by %s" % ((facility_pledge-grant_pledge)))
+                        warnings.append("Warning: Total grants do not equal grants by Facility for Refugees in Turkey. Facility for Refugees in Turkey grants are greater by %s" % ((facility_pledge-grant_pledge)))
                 if recipient in sg_sum_obj:
                     grant_sectors = sg_sum_obj[recipient]
                     if total_grants>grant_sectors:
