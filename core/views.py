@@ -96,7 +96,7 @@ def edit(request,year):
             gp_sum = gp.values('recipient').annotate(total = Sum('amount')).order_by('recipient')
             gp_sum_obj = {this_sum['recipient']:this_sum['total'] for this_sum in gp_sum} 
             #Facilities contributions
-            fc = entries.filter(spreadsheet=spreadsheet,loan_or_grant="G",concessional=True,refugee_facility_for_turkey=True,pledge_or_disbursement="P")
+            fc = entries.filter(spreadsheet=spreadsheet,loan_or_grant="G",concessional=True,pledge_or_disbursement="P").exclude(refugee_facility_for_turkey="")
             fc_sum = fc.values('recipient').annotate(total = Sum('amount')).order_by('recipient')
             fc_sum_obj = {this_sum['recipient']:this_sum['total'] for this_sum in fc_sum} 
             #Sector grants
@@ -269,7 +269,7 @@ def adminEdit(request,slug,year):
             gp_sum = gp.values('recipient').annotate(total = Sum('amount')).order_by('recipient')
             gp_sum_obj = {this_sum['recipient']:this_sum['total'] for this_sum in gp_sum} 
             #Facilities contributions
-            fc = entries.filter(spreadsheet=spreadsheet,loan_or_grant="G",concessional=True,refugee_facility_for_turkey=True,pledge_or_disbursement="P")
+            fc = entries.filter(spreadsheet=spreadsheet,loan_or_grant="G",concessional=True,pledge_or_disbursement="P").exclude(refugee_facility_for_turkey="")
             fc_sum = fc.values('recipient').annotate(total = Sum('amount')).order_by('recipient')
             fc_sum_obj = {this_sum['recipient']:this_sum['total'] for this_sum in fc_sum} 
             #Sector grants
@@ -371,13 +371,13 @@ def csv(request,slug):
     writer = csvwriter(response,encoding='utf-8')
     header = ["Organisation","Loan or grant","Concessional","Appeal","Appeal Status","Status"
               ,"Recipient","Sector","Channel of delivery","Year","Amount","Currency"
-              # ,"Refugee facility for Turkey"
+              ,"Refugee facility for Turkey"
               ,"Comment"]
     writer.writerow(header)
     for entry in entries:
         year = entry.spreadsheet.year_translate()
         #Edit here for future years
-        if year in [2017,"2018-2020"]:
+        if year in [2017,2018,"2019-2020"]:
             comment = entry.spreadsheet.comment
             currency = entry.spreadsheet.currency
             writer.writerow([organisation
@@ -392,7 +392,7 @@ def csv(request,slug):
                              ,year
                              ,entry.amount
                              ,currency
-                             # ,entry.facility_translate()
+                             ,entry.facility_translate()
                              ,comment
                              ])
     return response
