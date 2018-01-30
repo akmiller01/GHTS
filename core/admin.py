@@ -70,7 +70,7 @@ class EntryAdmin(admin.ModelAdmin):
                     ,"facility"
                     ,"amount"
                     ]
-    list_filter = ["prevfac","spreadsheet__organisation"
+    list_filter = ["spreadsheet__organisation"
                    ,"spreadsheet__year"
                     ,"loan_or_grant"
                     ,"concessional"
