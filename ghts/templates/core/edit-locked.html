@@ -241,7 +241,7 @@
         <tr>
             <td><b>{{status}}</b></td>
             {% for fcode, facility in facilities %}
-                <td><input type="text" name="G|C|{{scode}}|M|||{{fcode}}|N|"/
+                <td><input type="text" name="G|C|{{scode}}|{{fcode}}|||{{fcode}}|N|"/
                 {% if status == "Pledged" %}
                 {% endif %}
                 ></td>

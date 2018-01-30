@@ -127,9 +127,9 @@ class Entry(models.Model):
         ('O','Other channel of delivery (please detail in the comments box)'),
     )
     FACILITY_CHOICES = (
-        ('L','Facility for Refugees in Turkey'),
-        ('E','EU Regional Trust Fund in response to the Syrian crisis'),
-        ('G','Global Concessional Financing Facility')
+        ('T','Facility for Refugees in Turkey'),
+        ('R','EU Regional Trust Fund in response to the Syrian crisis'),
+        ('M','Global Concessional Financing Facility')
     )
     APPEAL_STATUS_CHOICES = (
         ('P','Amount pledged for appeal'),
