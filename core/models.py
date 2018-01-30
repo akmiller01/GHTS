@@ -44,6 +44,7 @@ class Organisation(models.Model):
     government = models.BooleanField(default=True)
     bank = models.BooleanField(default=False)
     sectors = models.ManyToManyField(Sector,related_name="sectors",related_query_name="sector",blank=True)
+    disable_default_loan_sectors = models.BooleanField(default=False)
     
     class Meta:
         ordering = ['name']
@@ -126,8 +127,9 @@ class Entry(models.Model):
         ('O','Other channel of delivery (please detail in the comments box)'),
     )
     FACILITY_CHOICES = (
-        ('L','Contributions to Facility for Refugees in Turkey'),
-        ('N','Contributions to Turkey excluding those to the Facility for Refugees in Turkey')
+        ('L','Facility for Refugees in Turkey'),
+        ('E','EU Regional Trust Fund in response to the Syrian crisis'),
+        ('G','Global Concessional Financing Facility')
     )
     APPEAL_STATUS_CHOICES = (
         ('P','Amount pledged for appeal'),
@@ -143,7 +145,7 @@ class Entry(models.Model):
     recipient = models.CharField(max_length=1,choices=RECIPIENT_CHOICES,default="N")
     channel_of_delivery = models.CharField(max_length=1,choices=DELIVERY_CHOICES,blank=True,null=True)
     sector = models.ForeignKey(Sector,blank=True,null=True)
-    refugee_facility_for_turkey = models.CharField(max_length=1,choices=FACILITY_CHOICES,blank=True,null=True)
+    facility = models.CharField(max_length=1,choices=FACILITY_CHOICES,blank=True,null=True)
     def loan_or_grant_lookup(self):
         val = self.coordinates.split("|")[0]
         return val
@@ -228,7 +230,7 @@ class Entry(models.Model):
             ,self.recipient if self.recipient else ""
             ,self.sector.__unicode__() if self.sector else ""
             ,self.channel_of_delivery if self.channel_of_delivery else ""
-            ,self.refugee_facility_for_turkey if self.refugee_facility_for_turkey else ""
+            ,self.facility if self.facility else ""
             ,"A" if self.appeal else "N"
             ,self.appeal_status if self.appeal_status else ""
         ]

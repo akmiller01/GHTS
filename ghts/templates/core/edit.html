@@ -44,11 +44,11 @@
     <p>The form data is organised by calendar year (January to December), not fiscal year.</p>
 <!--    <p>Before submitting the form, check the data validation fields.</p>-->
     {% if organisation.government %}
-        <!--<p>In the first section under grants to Turkey, please include within your figures any contributions to the Facility for Refugees in Turkey (TRF) which relate to pledges made at the London Conference. In the later section, please input contributions to the TRF which relate to the conference pledge and those outside the pledge in the respective boxes.</p>-->
-            <p>Please include grants to the GCFF in the 'Grants' table under the respective country and detail in comment box.</p>
+        <p>Please do not report contributions to the listed multi-donor mechanisms in 'Grant contributions by sector' or 'Grant contributions by channel of delivery', as these will be reported by the respective mechanism.</p>
+        <p>Please ensure all contributions to/via multi-donor mechanisms also reported in the 'Grants' table.</p>
     {% endif %}
     {% if organisation.bank %}
-    <p>Please specify funding to sectors not listed under 'Loan contributions by sector'</p>
+    <p>Please specify funding to sectors not listed under 'Loan contributions by sector' in the empty rows provided in that table and enter sector names.</p>
     {% endif %}
     <p>
         Pledges and funding labelled as ‘multi-country’ refer to instances where funding is directed (or will be directed) to two or more (but not all) specified countries in the Syria region. This differs from pledges and funding labelled as going to the ‘region’, which is specified as funding for the regional response by donors and may go to all countries in the region; as well as ‘not defined’, which refers to pledges and funding where no country or regional detail has been provided.
@@ -219,33 +219,6 @@
     </tr>
     </table>
     {% endif %}
-    {% if organisation.government %}
-    <div class="titleWrap">
-        <h2>Grants via UN-coordinated appeals</h2>
-        <!--<div class="info" onclick="toggle('grants')"></div>
-        <div class="popupWrap">
-            <div class="popup" id="grants">Information on grants</div>
-        </div>-->
-    </div>
-    <table>
-        <tr>
-            <th></th>
-            {% for rcode, recip in recipients %}
-                <th>{{recip}}</th>
-            {% endfor %}
-        </tr>
-    {% for scode, status in appeal_statuses %}
-        {% if scode == "C" %}
-        <tr>
-            <td><b>{{status}}</b></td>
-            {% for rcode, recip in recipients %}
-                <td><input type="text" name="G|C||{{rcode}}||||A|{{scode}}"/></td>
-            {% endfor %}
-        </tr>
-        {% endif %}
-    {% endfor %}
-    </table>
-    {% endif %}
     {% if organisation.loan_making %}
     <div class="titleWrap">
         <h2>Concessional loans</h2>
@@ -296,7 +269,7 @@
     {% endif %}
     {% if organisation.government %}
     <div class="titleWrap">
-        <h2>Contributions to Turkey channelled via the Facility for Refugees in Turkey</h2>
+        <h2>Contributions via multi-donor mechanisms</h2>
 <!--        <div class="info" onclick="toggle('facility')"></div>
         <div class="popupWrap">
             <div class="popup" id="facility">Please include in the first column contributions to TRF that were part of the London conference. Please include in the second column contributions to TRF that were not part of the London conference.</div>
@@ -313,7 +286,7 @@
         <tr>
             <td><b>{{status}}</b></td>
             {% for fcode, facility in facilities %}
-                <td><input type="text" name="G|C|{{scode}}|T|||{{fcode}}|N|"/></td>
+                <td><input type="text" name="G|C|{{scode}}|M|||{{fcode}}|N|"/></td>
             {% endfor %}
         </tr>
     {% endfor %}

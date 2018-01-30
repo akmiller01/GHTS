@@ -21,10 +21,16 @@ def edit(request,year):
     recipients = Entry.RECIPIENT_CHOICES
     statuses = Entry.PLEDGE_OR_DISB_CHOICES
     if not organisation.sectors.all():
-        sectors = Sector.objects.filter(default=True)
+        if not organisation.disable_default_loan_sectors:
+            sectors = Sector.objects.filter(default=True)
+        else:
+            sectors = Sector.objects.filter(default=True,loan_or_grant="G")
     else:
         organisationSectors = organisation.sectors.all()
-        defaultSectors = Sector.objects.filter(default=True)
+        if not organisation.disable_default_loan_sectors:
+            defaultSectors = Sector.objects.filter(default=True)
+        else:
+            defaultSectors = Sector.objects.filter(default=True,loan_or_grant="G")
         unionSectors = organisationSectors | defaultSectors
         sectors = unionSectors.distinct()
     channels = Entry.DELIVERY_CHOICES
@@ -88,64 +94,35 @@ def edit(request,year):
             spreadsheet_exists = True
             #Validate sums here
             #Grants table
-            gt = entries.filter(spreadsheet=spreadsheet,loan_or_grant="G",concessional=True,appeal=False,refugee_facility_for_turkey="",channel_of_delivery="",sector__isnull=True).exclude(pledge_or_disbursement="P")
+            gt = entries.filter(spreadsheet=spreadsheet,loan_or_grant="G",concessional=True,appeal=False,facility="",channel_of_delivery="",sector__isnull=True).exclude(pledge_or_disbursement="P")
             gt_sum = gt.values('recipient').annotate(total = Sum('amount')).order_by('recipient')
             gt_sum_obj = {this_sum['recipient']:this_sum['total'] for this_sum in gt_sum}
-            #Grant pledges table
-            gp = entries.filter(spreadsheet=spreadsheet,loan_or_grant="G",concessional=True,appeal=False,refugee_facility_for_turkey="",channel_of_delivery="",sector__isnull=True).exclude(pledge_or_disbursement="")
-            gp_sum = gp.values('recipient').annotate(total = Sum('amount')).order_by('recipient')
-            gp_sum_obj = {this_sum['recipient']:this_sum['total'] for this_sum in gp_sum} 
-            #Facilities contributions
-            fc = entries.filter(spreadsheet=spreadsheet,loan_or_grant="G",concessional=True).exclude(refugee_facility_for_turkey="")
-            fc_sum = fc.values('recipient').annotate(total = Sum('amount')).order_by('recipient')
-            fc_sum_obj = {this_sum['recipient']:this_sum['total'] for this_sum in fc_sum} 
             #Sector grants
-            sg = entries.filter(spreadsheet=spreadsheet,loan_or_grant="G",concessional=True,appeal=False,refugee_facility_for_turkey="",channel_of_delivery="",sector__isnull=False)
+            sg = entries.filter(spreadsheet=spreadsheet,loan_or_grant="G",concessional=True,appeal=False,facility="",channel_of_delivery="",sector__isnull=False)
             sg_sum = sg.values('recipient').annotate(total = Sum('amount')).order_by('recipient')
             sg_sum_obj = {this_sum['recipient']:this_sum['total'] for this_sum in sg_sum} 
             #Channel grants
-            cg = entries.filter(spreadsheet=spreadsheet,loan_or_grant="G",concessional=True,appeal=False,refugee_facility_for_turkey="",sector__isnull=True)
+            cg = entries.filter(spreadsheet=spreadsheet,loan_or_grant="G",concessional=True,appeal=False,facility="",sector__isnull=True)
             cg_sum = cg.values('recipient').annotate(total = Sum('amount')).order_by('recipient').exclude(channel_of_delivery="")
             cg_sum_obj = {this_sum['recipient']:this_sum['total'] for this_sum in cg_sum}
-            #Appeal grants
-            ag = entries.filter(spreadsheet=spreadsheet,loan_or_grant="G",concessional=True,appeal=True,refugee_facility_for_turkey="")
-            ag_sum = ag.values('recipient').annotate(total = Sum('amount')).order_by('recipient')
-            ag_sum_obj = {this_sum['recipient']:this_sum['total'] for this_sum in ag_sum}
             #Compare grants
             for recipient,recipient_name in recipients:
-                total_grants = 0
-                grant_pledge = 0
-                if recipient in gt_sum_obj:
-                    total_grants = total_grants + gt_sum_obj[recipient]
-                if recipient in gp_sum_obj:
-                    grant_pledge = gp_sum_obj[recipient]
-                # Facility contributions no longer need to add to total grants
-                # if recipient in fc_sum_obj:
-                #     total_grants = total_grants + fc_sum_obj[recipient]
-                if recipient in fc_sum_obj:
-                    facility_pledge = fc_sum_obj[recipient]
-                    if grant_pledge>facility_pledge:
-                        warnings.append("Warning: Total grants do not equal grants by Facility for Refugees in Turkey. Total grants are greater by %s" % ((grant_pledge-facility_pledge)))
-                    if grant_pledge<facility_pledge:
-                        warnings.append("Warning: Total grants do not equal grants by Facility for Refugees in Turkey. Facility for Refugees in Turkey grants are greater by %s" % ((facility_pledge-grant_pledge)))
-                if recipient in sg_sum_obj:
-                    grant_sectors = sg_sum_obj[recipient]
-                    if total_grants>grant_sectors:
-                        warnings.append("Warning: Total grants do not equal grants by sector for %s. Total grants are greater by %s" % (recipient_name,(total_grants-grant_sectors)))
-                    if total_grants<grant_sectors:
-                        warnings.append("Warning: Total grants do not equal grants by sector for %s. Grants by sector are greater by %s" % (recipient_name,(grant_sectors-total_grants)))
-                if recipient in cg_sum_obj:
-                    grant_channels = cg_sum_obj[recipient]
-                    if total_grants>grant_channels:
-                        warnings.append("Warning: Total grants do not equal grants by channel of delivery for %s. Total grants are greater by %s" % (recipient_name,(total_grants-grant_channels)))
-                    if total_grants<grant_channels:
-                        warnings.append("Warning: Total grants do not equal grants by channel of delivery for %s. Grants by channel of delivery are greater by %s" % (recipient_name,(grant_channels-total_grants)))
-                if recipient in ag_sum_obj:
-                    grant_appeals = ag_sum_obj[recipient]
-                    if total_grants>grant_appeals:
-                        warnings.append("Warning: Total grants do not equal grants by appeals for %s. Total grants are greater by %s" % (recipient_name,(total_grants-grant_appeals)))
-                    if total_grants<grant_appeals:
-                        warnings.append("Warning: Total grants do not equal grants by appeals for %s. Grants by appeals are greater by %s" % (recipient_name,(grant_appeals-total_grants)))
+                if recipient not in ["M","R"]:
+                    total_grants = 0
+                    if recipient in gt_sum_obj:
+                        total_grants = total_grants + gt_sum_obj[recipient]
+                    if recipient in sg_sum_obj:
+                        grant_sectors = sg_sum_obj[recipient]
+                        if total_grants>grant_sectors:
+                            warnings.append("Warning: Total grants do not equal grants by sector for %s. Total grants are greater by %s" % (recipient_name,(total_grants-grant_sectors)))
+                        if total_grants<grant_sectors:
+                            warnings.append("Warning: Total grants do not equal grants by sector for %s. Grants by sector are greater by %s" % (recipient_name,(grant_sectors-total_grants)))
+                    if recipient in cg_sum_obj:
+                        grant_channels = cg_sum_obj[recipient]
+                        if total_grants>grant_channels:
+                            warnings.append("Warning: Total grants do not equal grants by channel of delivery for %s. Total grants are greater by %s" % (recipient_name,(total_grants-grant_channels)))
+                        if total_grants<grant_channels:
+                            warnings.append("Warning: Total grants do not equal grants by channel of delivery for %s. Grants by channel of delivery are greater by %s" % (recipient_name,(grant_channels-total_grants)))
             #Loans table (both concessional and non-concessional)
             lt = entries.filter(spreadsheet=spreadsheet,loan_or_grant="L",sector__isnull=True,channel_of_delivery="").exclude(pledge_or_disbursement="P")
             lt_sum = lt.values('recipient').annotate(total = Sum('amount')).order_by('recipient')
@@ -195,10 +172,16 @@ def adminEdit(request,slug,year):
     recipients = Entry.RECIPIENT_CHOICES
     statuses = Entry.PLEDGE_OR_DISB_CHOICES
     if not organisation.sectors.all():
-        sectors = Sector.objects.filter(default=True)
+        if not organisation.disable_default_loan_sectors:
+            sectors = Sector.objects.filter(default=True)
+        else:
+            sectors = Sector.objects.filter(default=True,loan_or_grant="G")
     else:
         organisationSectors = organisation.sectors.all()
-        defaultSectors = Sector.objects.filter(default=True)
+        if not organisation.disable_default_loan_sectors:
+            defaultSectors = Sector.objects.filter(default=True)
+        else:
+            defaultSectors = Sector.objects.filter(default=True,loan_or_grant="G")
         unionSectors = organisationSectors | defaultSectors
         sectors = unionSectors.distinct()
     channels = Entry.DELIVERY_CHOICES
@@ -261,64 +244,35 @@ def adminEdit(request,slug,year):
             spreadsheet_exists = True
             #Validate sums here
             #Grants table
-            gt = entries.filter(spreadsheet=spreadsheet,loan_or_grant="G",concessional=True,refugee_facility_for_turkey="",channel_of_delivery="",sector__isnull=True).exclude(pledge_or_disbursement="P")
+            gt = entries.filter(spreadsheet=spreadsheet,loan_or_grant="G",concessional=True,facility="",channel_of_delivery="",sector__isnull=True).exclude(pledge_or_disbursement="P")
             gt_sum = gt.values('recipient').annotate(total = Sum('amount')).order_by('recipient')
             gt_sum_obj = {this_sum['recipient']:this_sum['total'] for this_sum in gt_sum} 
-            #Grant pledges table
-            gp = entries.filter(spreadsheet=spreadsheet,loan_or_grant="G",concessional=True,appeal=False,refugee_facility_for_turkey="",channel_of_delivery="",sector__isnull=True).exclude(pledge_or_disbursement="")
-            gp_sum = gp.values('recipient').annotate(total = Sum('amount')).order_by('recipient')
-            gp_sum_obj = {this_sum['recipient']:this_sum['total'] for this_sum in gp_sum} 
-            #Facilities contributions
-            fc = entries.filter(spreadsheet=spreadsheet,loan_or_grant="G",concessional=True).exclude(refugee_facility_for_turkey="")
-            fc_sum = fc.values('recipient').annotate(total = Sum('amount')).order_by('recipient')
-            fc_sum_obj = {this_sum['recipient']:this_sum['total'] for this_sum in fc_sum} 
             #Sector grants
-            sg = entries.filter(spreadsheet=spreadsheet,loan_or_grant="G",concessional=True,refugee_facility_for_turkey="",channel_of_delivery="",sector__isnull=False)
+            sg = entries.filter(spreadsheet=spreadsheet,loan_or_grant="G",concessional=True,facility="",channel_of_delivery="",sector__isnull=False)
             sg_sum = sg.values('recipient').annotate(total = Sum('amount')).order_by('recipient')
             sg_sum_obj = {this_sum['recipient']:this_sum['total'] for this_sum in sg_sum} 
             #Channel grants
-            cg = entries.filter(spreadsheet=spreadsheet,loan_or_grant="G",concessional=True,refugee_facility_for_turkey="",sector__isnull=True)
+            cg = entries.filter(spreadsheet=spreadsheet,loan_or_grant="G",concessional=True,facility="",sector__isnull=True)
             cg_sum = cg.values('recipient').annotate(total = Sum('amount')).order_by('recipient').exclude(channel_of_delivery="")
             cg_sum_obj = {this_sum['recipient']:this_sum['total'] for this_sum in cg_sum}
-            #Appeal grants
-            ag = entries.filter(spreadsheet=spreadsheet,loan_or_grant="G",concessional=True,appeal=True,refugee_facility_for_turkey="")
-            ag_sum = ag.values('recipient').annotate(total = Sum('amount')).order_by('recipient')
-            ag_sum_obj = {this_sum['recipient']:this_sum['total'] for this_sum in ag_sum}
             #Compare grants
             for recipient,recipient_name in recipients:
-                total_grants = 0
-                grant_pledge = 0
-                if recipient in gt_sum_obj:
-                    total_grants = total_grants + gt_sum_obj[recipient]
-                if recipient in gp_sum_obj:
-                    grant_pledge = gp_sum_obj[recipient]
-                # Facility contributions no longer need to add to total grants
-                # if recipient in fc_sum_obj:
-                #     total_grants = total_grants + fc_sum_obj[recipient]
-                if recipient in fc_sum_obj:
-                    facility_pledge = fc_sum_obj[recipient]
-                    if grant_pledge>facility_pledge:
-                        warnings.append("Warning: Total grants do not equal grants by Facility for Refugees in Turkey. Total grants are greater by %s" % ((grant_pledge-facility_pledge)))
-                    if grant_pledge<facility_pledge:
-                        warnings.append("Warning: Total grants do not equal grants by Facility for Refugees in Turkey. Facility for Refugees in Turkey grants are greater by %s" % ((facility_pledge-grant_pledge)))
-                if recipient in sg_sum_obj:
-                    grant_sectors = sg_sum_obj[recipient]
-                    if total_grants>grant_sectors:
-                        warnings.append("Warning: Total grants do not equal grants by sector for %s. Total grants are greater by %s" % (recipient_name,(total_grants-grant_sectors)))
-                    if total_grants<grant_sectors:
-                        warnings.append("Warning: Total grants do not equal grants by sector for %s. Grants by sector are greater by %s" % (recipient_name,(grant_sectors-total_grants)))
-                if recipient in cg_sum_obj:
-                    grant_channels = cg_sum_obj[recipient]
-                    if total_grants>grant_channels:
-                        warnings.append("Warning: Total grants do not equal grants by channel of delivery for %s. Total grants are greater by %s" % (recipient_name,(total_grants-grant_channels)))
-                    if total_grants<grant_channels:
-                        warnings.append("Warning: Total grants do not equal grants by channel of delivery for %s. Grants by channel of delivery are greater by %s" % (recipient_name,(grant_channels-total_grants)))
-                if recipient in ag_sum_obj:
-                    grant_appeals = ag_sum_obj[recipient]
-                    if total_grants>grant_appeals:
-                        warnings.append("Warning: Total grants do not equal grants by appeals for %s. Total grants are greater by %s" % (recipient_name,(total_grants-grant_appeals)))
-                    if total_grants<grant_appeals:
-                        warnings.append("Warning: Total grants do not equal grants by appeals for %s. Grants by appeals are greater by %s" % (recipient_name,(grant_appeals-total_grants)))
+                if recipient not in ["M","R"]:
+                    total_grants = 0
+                    if recipient in gt_sum_obj:
+                        total_grants = total_grants + gt_sum_obj[recipient]
+                    if recipient in sg_sum_obj:
+                        grant_sectors = sg_sum_obj[recipient]
+                        if total_grants>grant_sectors:
+                            warnings.append("Warning: Total grants do not equal grants by sector for %s. Total grants are greater by %s" % (recipient_name,(total_grants-grant_sectors)))
+                        if total_grants<grant_sectors:
+                            warnings.append("Warning: Total grants do not equal grants by sector for %s. Grants by sector are greater by %s" % (recipient_name,(grant_sectors-total_grants)))
+                    if recipient in cg_sum_obj:
+                        grant_channels = cg_sum_obj[recipient]
+                        if total_grants>grant_channels:
+                            warnings.append("Warning: Total grants do not equal grants by channel of delivery for %s. Total grants are greater by %s" % (recipient_name,(total_grants-grant_channels)))
+                        if total_grants<grant_channels:
+                            warnings.append("Warning: Total grants do not equal grants by channel of delivery for %s. Grants by channel of delivery are greater by %s" % (recipient_name,(grant_channels-total_grants)))
             #Loans table (both concessional and non-concessional)
             lt = entries.filter(spreadsheet=spreadsheet,loan_or_grant="L",sector__isnull=True,channel_of_delivery="").exclude(pledge_or_disbursement="P")
             lt_sum = lt.values('recipient').annotate(total = Sum('amount')).order_by('recipient')
@@ -369,9 +323,9 @@ def csv(request,slug):
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename="'+slug+'.csv"'
     writer = csvwriter(response,encoding='utf-8')
-    header = ["Organisation","Loan or grant","Concessional","Appeal","Appeal Status","Status"
+    header = ["Organisation","Loan or grant","Concessional","Status"
               ,"Recipient","Sector","Channel of delivery","Year","Amount","Currency"
-              ,"Refugee facility for Turkey"
+              ,"Facility"
               ,"Comment"]
     writer.writerow(header)
     for entry in entries:
@@ -383,8 +337,6 @@ def csv(request,slug):
             writer.writerow([organisation
                              ,entry.loan_or_grant_translate()
                              ,entry.concessional_translate()
-                             ,entry.appeal_translate()
-                             ,entry.appeal_status_translate()
                              ,entry.pledge_or_disbursement_translate()
                              ,entry.recipient_translate()
                              ,entry.sector
@@ -407,7 +359,7 @@ def csv_all(request):
         writer = csvwriter(response,encoding='utf-8')
         header = ["Organisation","Loan or grant","Concessional","Appeal","Appeal status","Status"
                   ,"Recipient","Sector","Channel of delivery","Year","Amount","Currency"
-                  ,"Refugee facility for Turkey","Comment"]
+                  ,"Facility","Comment"]
         writer.writerow(header)
         for entry in entries:
             organisation = entry.spreadsheet.organisation

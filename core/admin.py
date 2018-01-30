@@ -66,7 +66,7 @@ class EntryAdmin(admin.ModelAdmin):
                     ,"recipient"
                     ,"sector"
                     ,"channel_of_delivery"
-                    ,"refugee_facility_for_turkey"
+                    ,"facility"
                     ,"amount"
                     ]
     list_filter = ["spreadsheet__organisation"
@@ -79,7 +79,7 @@ class EntryAdmin(admin.ModelAdmin):
                     ,"recipient"
                     ,"sector"
                     ,"channel_of_delivery"
-                    ,"refugee_facility_for_turkey"
+                    ,"facility"
                     ]
     actions = [refresh_coordinates]
     def number(self,obj):
