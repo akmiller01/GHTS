@@ -56,6 +56,7 @@ class SpreadsheetAdmin(admin.ModelAdmin):
 class EntryAdmin(admin.ModelAdmin):
     #fields display on change list
     list_display = ["number"
+                    ,"prevfac"
                     ,"organisation"
                     ,"year"
                     ,"loan_or_grant"
@@ -82,6 +83,8 @@ class EntryAdmin(admin.ModelAdmin):
                     ,"facility"
                     ]
     actions = [refresh_coordinates]
+    def prevfac(self,obj):
+        return obj.facility_lookup()
     def number(self,obj):
         return obj.pk
     def organisation(self,obj):
