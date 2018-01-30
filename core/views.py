@@ -22,9 +22,9 @@ def edit(request,year):
     statuses = Entry.PLEDGE_OR_DISB_CHOICES
     if not organisation.sectors.all():
         if not organisation.disable_default_loan_sectors:
-            sectors = Sector.objects.filter(default=True)
+            sectors = Sector.objects.filter(default=True).order_by("name")
         else:
-            sectors = Sector.objects.filter(default=True,loan_or_grant="G")
+            sectors = Sector.objects.filter(default=True,loan_or_grant="G").order_by("name")
     else:
         organisationSectors = organisation.sectors.all()
         if not organisation.disable_default_loan_sectors:
@@ -32,7 +32,7 @@ def edit(request,year):
         else:
             defaultSectors = Sector.objects.filter(default=True,loan_or_grant="G")
         unionSectors = organisationSectors | defaultSectors
-        sectors = unionSectors.distinct()
+        sectors = unionSectors.distinct().order_by("name")
     channels = Entry.DELIVERY_CHOICES
     facilities = Entry.FACILITY_CHOICES
     appeal_statuses = Entry.APPEAL_STATUS_CHOICES
@@ -173,9 +173,9 @@ def adminEdit(request,slug,year):
     statuses = Entry.PLEDGE_OR_DISB_CHOICES
     if not organisation.sectors.all():
         if not organisation.disable_default_loan_sectors:
-            sectors = Sector.objects.filter(default=True)
+            sectors = Sector.objects.filter(default=True).order_by("name")
         else:
-            sectors = Sector.objects.filter(default=True,loan_or_grant="G")
+            sectors = Sector.objects.filter(default=True,loan_or_grant="G").order_by("name")
     else:
         organisationSectors = organisation.sectors.all()
         if not organisation.disable_default_loan_sectors:
@@ -183,7 +183,7 @@ def adminEdit(request,slug,year):
         else:
             defaultSectors = Sector.objects.filter(default=True,loan_or_grant="G")
         unionSectors = organisationSectors | defaultSectors
-        sectors = unionSectors.distinct()
+        sectors = unionSectors.distinct().order_by("name")
     channels = Entry.DELIVERY_CHOICES
     facilities = Entry.FACILITY_CHOICES
     appeal_statuses = Entry.APPEAL_STATUS_CHOICES
