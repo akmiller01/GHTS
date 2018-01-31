@@ -32,7 +32,7 @@ def edit(request,year):
         else:
             defaultSectors = Sector.objects.filter(default=True,loan_or_grant="G")
         unionSectors = organisationSectors | defaultSectors
-        sectors = unionSectors.distinct().order_by("name").exclude(name="Other (please detail in comments box)")
+        sectors = unionSectors.exclude(name="Other (please detail in comments box)").distinct().order_by("name")
     if organisation.disable_default_loan_sectors:
         sectors = sectors | Sector.objects.filter(name="Other (please detail in comments box)",loan_or_grant="G").distinct()
     else:
@@ -187,7 +187,7 @@ def adminEdit(request,slug,year):
         else:
             defaultSectors = Sector.objects.filter(default=True,loan_or_grant="G")
         unionSectors = organisationSectors | defaultSectors
-        sectors = unionSectors.distinct().order_by("name").exclude(name="Other (please detail in comments box)")
+        sectors = unionSectors.exclude(name="Other (please detail in comments box)").distinct().order_by("name")
     if organisation.disable_default_loan_sectors:
         sectors = sectors | Sector.objects.filter(name="Other (please detail in comments box)",loan_or_grant="G").distinct()
     else:
