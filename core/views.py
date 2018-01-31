@@ -22,7 +22,7 @@ def edit(request,year):
     recipients = Entry.RECIPIENT_CHOICES
     statuses = Entry.PLEDGE_OR_DISB_CHOICES
     #Needed to order "Other"
-    Sector.objects.annotate(
+    annotated_sectors = Sector.objects.annotate(
         other=Case(
             When(name="Other (please detail in comments box)",then=Value(1)),
             default=Value(0),
@@ -31,15 +31,21 @@ def edit(request,year):
     )
     if not organisation.sectors.all():
         if not organisation.disable_default_loan_sectors:
-            sectors = Sector.objects.filter(default=True).order_by("other","name")
+            sectors = annotated_sectors.filter(default=True).order_by("other","name")
         else:
-            sectors = Sector.objects.filter(default=True,loan_or_grant="G").order_by("other","name")
+            sectors = annotated_sectors.filter(default=True,loan_or_grant="G").order_by("other","name")
     else:
-        organisationSectors = organisation.sectors.all()
+        organisationSectors = organisation.sectors.annotate(
+            other=Case(
+                When(name="Other (please detail in comments box)",then=Value(1)),
+                default=Value(0),
+                output_field=IntegerField(),
+            )
+        ).all()
         if not organisation.disable_default_loan_sectors:
-            defaultSectors = Sector.objects.filter(default=True)
+            defaultSectors = annotated_sectors.filter(default=True)
         else:
-            defaultSectors = Sector.objects.filter(default=True,loan_or_grant="G")
+            defaultSectors = annotated_sectors.filter(default=True,loan_or_grant="G")
         unionSectors = organisationSectors | defaultSectors
         sectors = unionSectors.distinct().order_by("other","name")
     channels = Entry.DELIVERY_CHOICES
@@ -181,7 +187,7 @@ def adminEdit(request,slug,year):
     recipients = Entry.RECIPIENT_CHOICES
     statuses = Entry.PLEDGE_OR_DISB_CHOICES
     #Needed to order "Other"
-    Sector.objects.annotate(
+    annotated_sectors = Sector.objects.annotate(
         other=Case(
             When(name="Other (please detail in comments box)",then=Value(1)),
             default=Value(0),
@@ -190,15 +196,21 @@ def adminEdit(request,slug,year):
     )
     if not organisation.sectors.all():
         if not organisation.disable_default_loan_sectors:
-            sectors = Sector.objects.filter(default=True).order_by("other","name")
+            sectors = annotated_sectors.filter(default=True).order_by("other","name")
         else:
-            sectors = Sector.objects.filter(default=True,loan_or_grant="G").order_by("other","name")
+            sectors = annotated_sectors.filter(default=True,loan_or_grant="G").order_by("other","name")
     else:
-        organisationSectors = organisation.sectors.all()
+        organisationSectors = organisation.sectors.annotate(
+            other=Case(
+                When(name="Other (please detail in comments box)",then=Value(1)),
+                default=Value(0),
+                output_field=IntegerField(),
+            )
+        ).all()
         if not organisation.disable_default_loan_sectors:
-            defaultSectors = Sector.objects.filter(default=True)
+            defaultSectors = annotated_sectors.filter(default=True)
         else:
-            defaultSectors = Sector.objects.filter(default=True,loan_or_grant="G")
+            defaultSectors = annotated_sectors.filter(default=True,loan_or_grant="G")
         unionSectors = organisationSectors | defaultSectors
         sectors = unionSectors.distinct().order_by("other","name")
     channels = Entry.DELIVERY_CHOICES
