@@ -34,9 +34,9 @@ def edit(request,year):
         unionSectors = organisationSectors | defaultSectors
         sectors = unionSectors.distinct().order_by("name").exclude(name="Other (please detail in comments box)")
     if organisation.disable_default_loan_sectors:
-        sectors = sectors | Sector.objects.filter(name="Other (please detail in comments box)",loan_or_grant="G")
+        sectors = sectors | Sector.objects.filter(name="Other (please detail in comments box)",loan_or_grant="G").distinct()
     else:
-        sectors = sectors | Sector.objects.filter(name="Other (please detail in comments box)")
+        sectors = sectors | Sector.objects.filter(name="Other (please detail in comments box)").distinct()
     channels = Entry.DELIVERY_CHOICES
     facilities = Entry.FACILITY_CHOICES
     appeal_statuses = Entry.APPEAL_STATUS_CHOICES
@@ -189,9 +189,9 @@ def adminEdit(request,slug,year):
         unionSectors = organisationSectors | defaultSectors
         sectors = unionSectors.distinct().order_by("name").exclude(name="Other (please detail in comments box)")
     if organisation.disable_default_loan_sectors:
-        sectors = sectors | Sector.objects.filter(name="Other (please detail in comments box)",loan_or_grant="G")
+        sectors = sectors | Sector.objects.filter(name="Other (please detail in comments box)",loan_or_grant="G").distinct()
     else:
-        sectors = sectors | Sector.objects.filter(name="Other (please detail in comments box)")
+        sectors = sectors | Sector.objects.filter(name="Other (please detail in comments box)").distinct()
     channels = Entry.DELIVERY_CHOICES
     facilities = Entry.FACILITY_CHOICES
     appeal_statuses = Entry.APPEAL_STATUS_CHOICES
