@@ -10,6 +10,7 @@ from .forms import SpreadsheetForm
 from .util import *
 from django.db.models import Sum
 from itertools import chain, groupby
+from django.db.models import Case, When, Value, IntegerField
 
 @login_required
 def edit(request,year):
@@ -20,11 +21,19 @@ def edit(request,year):
     organisation = contact.organisation
     recipients = Entry.RECIPIENT_CHOICES
     statuses = Entry.PLEDGE_OR_DISB_CHOICES
+    #Needed to order "Other"
+    Sector.objects.annotate(
+        other=Case(
+            When(name="Other (please detail in comments box)",then=Value(1)),
+            default=Value(0),
+            output_field=IntegerField(),
+        )
+    )
     if not organisation.sectors.all():
         if not organisation.disable_default_loan_sectors:
-            sectors = [Sector.objects.filter(default=True).order_by("name").exclude(name="Other (please detail in comments box)")] + [Sector.objects.filter(name="Other (please detail in comments box)")]
+            sectors = Sector.objects.filter(default=True).order_by("other","name")
         else:
-            sectors = [Sector.objects.filter(default=True,loan_or_grant="G").order_by("name").exclude(name="Other (please detail in comments box)")] + [Sector.objects.filter(name="Other (please detail in comments box)",loan_or_grant="G")]
+            sectors = Sector.objects.filter(default=True,loan_or_grant="G").order_by("other","name")
     else:
         organisationSectors = organisation.sectors.all()
         if not organisation.disable_default_loan_sectors:
@@ -32,11 +41,7 @@ def edit(request,year):
         else:
             defaultSectors = Sector.objects.filter(default=True,loan_or_grant="G")
         unionSectors = organisationSectors | defaultSectors
-        sectors = [unionSectors.exclude(name="Other (please detail in comments box)").distinct().order_by("name")]
-    if organisation.disable_default_loan_sectors:
-        sectors = sectors + [Sector.objects.filter(name="Other (please detail in comments box)",loan_or_grant="G")]
-    else:
-        sectors = sectors + [Sector.objects.filter(name="Other (please detail in comments box)")]
+        sectors = unionSectors.distinct().order_by("other","name")
     channels = Entry.DELIVERY_CHOICES
     facilities = Entry.FACILITY_CHOICES
     appeal_statuses = Entry.APPEAL_STATUS_CHOICES
@@ -175,11 +180,19 @@ def adminEdit(request,slug,year):
     organisation = Organisation.objects.get(slug=slug)
     recipients = Entry.RECIPIENT_CHOICES
     statuses = Entry.PLEDGE_OR_DISB_CHOICES
+    #Needed to order "Other"
+    Sector.objects.annotate(
+        other=Case(
+            When(name="Other (please detail in comments box)",then=Value(1)),
+            default=Value(0),
+            output_field=IntegerField(),
+        )
+    )
     if not organisation.sectors.all():
         if not organisation.disable_default_loan_sectors:
-            sectors = [Sector.objects.filter(default=True).order_by("name").exclude(name="Other (please detail in comments box)")] + [Sector.objects.filter(name="Other (please detail in comments box)")]
+            sectors = Sector.objects.filter(default=True).order_by("other","name")
         else:
-            sectors = [Sector.objects.filter(default=True,loan_or_grant="G").order_by("name").exclude(name="Other (please detail in comments box)")] + [Sector.objects.filter(name="Other (please detail in comments box)",loan_or_grant="G")]
+            sectors = Sector.objects.filter(default=True,loan_or_grant="G").order_by("other","name")
     else:
         organisationSectors = organisation.sectors.all()
         if not organisation.disable_default_loan_sectors:
@@ -187,11 +200,7 @@ def adminEdit(request,slug,year):
         else:
             defaultSectors = Sector.objects.filter(default=True,loan_or_grant="G")
         unionSectors = organisationSectors | defaultSectors
-        sectors = [unionSectors.exclude(name="Other (please detail in comments box)").distinct().order_by("name")]
-    if organisation.disable_default_loan_sectors:
-        sectors = sectors + [Sector.objects.filter(name="Other (please detail in comments box)",loan_or_grant="G")]
-    else:
-        sectors = sectors + [Sector.objects.filter(name="Other (please detail in comments box)")]
+        sectors = unionSectors.distinct().order_by("other","name")
     channels = Entry.DELIVERY_CHOICES
     facilities = Entry.FACILITY_CHOICES
     appeal_statuses = Entry.APPEAL_STATUS_CHOICES
