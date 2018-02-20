@@ -52,7 +52,11 @@ def edit(request,year):
     facilities = Entry.FACILITY_CHOICES
     appeal_statuses = Entry.APPEAL_STATUS_CHOICES
     years = Spreadsheet.YEAR_CHOICES
-    filtered_years = years[-3:]
+    #France wants 2016
+    if organisation.name=="France":
+        filtered_years = years[-3:]
+    else:
+        filtered_years = years[0]+years[-3:]
     year = int(year)
     year_verbose = dict(years)[year]
     if request.method == "POST":
@@ -360,7 +364,11 @@ def csv(request,slug):
     for entry in entries:
         year = entry.spreadsheet.year_translate()
         #Edit here for future years
-        if year in [2017,2018,"2019-2020"]:
+        if organisation.name=="France":
+            filtered_years = [2016,2017,2018,"2019-2020"]
+        else:
+            filtered_years = [2017,2018,"2019-2020"]
+        if year in filtered_years:
             comment = entry.spreadsheet.comment
             currency = entry.spreadsheet.currency
             writer.writerow([organisation
