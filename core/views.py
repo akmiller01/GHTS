@@ -54,7 +54,7 @@ def edit(request,year):
     years = Spreadsheet.YEAR_CHOICES
     #France wants 2016
     if organisation.name=="France":
-        filtered_years = years[-3:]
+        filtered_years = (years[0],) + years[-3:]
     else:
         filtered_years = years[-3:]
     year = int(year)
