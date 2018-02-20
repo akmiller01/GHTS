@@ -56,7 +56,7 @@ def edit(request,year):
     if organisation.name=="France":
         filtered_years = years[-3:]
     else:
-        filtered_years = years[0]+years[-3:]
+        filtered_years = years[-3:]
     year = int(year)
     year_verbose = dict(years)[year]
     if request.method == "POST":
