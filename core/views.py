@@ -52,8 +52,8 @@ def edit(request,year):
     facilities = Entry.FACILITY_CHOICES
     appeal_statuses = Entry.APPEAL_STATUS_CHOICES
     years = Spreadsheet.YEAR_CHOICES
-    #France wants 2016
-    if organisation.name=="France":
+    #France, ISDB want 2016
+    if organisation.name in ["France","Islamic Development Bank"]:
         filtered_years = (years[0],) + years[-3:]
     else:
         filtered_years = years[-3:]
@@ -364,7 +364,7 @@ def csv(request,slug):
     for entry in entries:
         year = entry.spreadsheet.year_translate()
         #Edit here for future years
-        if organisation.name=="France":
+        if organisation.name in ["France","Islamic Development Bank"]:
             filtered_years = [2016,2017,2018,"2019-2020"]
         else:
             filtered_years = [2017,2018,"2019-2020"]
