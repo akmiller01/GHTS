@@ -8,14 +8,14 @@ class Currency(models.Model):
     symbol = models.CharField(max_length=10)
     iso = models.CharField(max_length=3)
     description = models.CharField(max_length=255)
-    
+
     class Meta:
         ordering = ['iso']
         verbose_name_plural = "currencies"
-    
+
     def __str__(self):
         return self.iso
-    
+
 class Sector(models.Model):
     name = models.CharField(max_length=255)
     LOAN_OR_GRANT_CHOICES = (
@@ -26,10 +26,10 @@ class Sector(models.Model):
     default = models.BooleanField(default=False)
     def loan_verbose(self):
         return dict(Transaction.LOAN_OR_GRANT_CHOICES)[self.loan_or_grant]
-    
+
     def __unicode__(self):
         return u'%s' % self.name
-    
+
     def save(self, *args, **kwargs):
         super(Sector, self).save(*args, **kwargs)
         if self.name:
@@ -45,29 +45,29 @@ class Organisation(models.Model):
     bank = models.BooleanField(default=False)
     sectors = models.ManyToManyField(Sector,related_name="sectors",related_query_name="sector",blank=True)
     disable_default_loan_sectors = models.BooleanField(default=False)
-    
+
     class Meta:
         ordering = ['name']
-    
+
     def __unicode__(self):
         return u'%s' % self.name
-    
+
     def get_absolute_url(self):
         return reverse("core.views.adminEdit",args=[self.slug,2016])
-    
+
     def get_export_url(self):
         return reverse("core.views.csv",args=[self.slug])
 
 class Contact(models.Model):
     user = models.OneToOneField(User,on_delete=models.CASCADE,primary_key=True)
     organisation = models.ForeignKey(Organisation)
-    
+
     def __str__(self):
         return self.user.get_full_name()
-    
+
     def __unicode__(self):
         return u'%s' % self.user.get_full_name()
-    
+
 class Spreadsheet(models.Model):
     YEAR_CHOICES = (
         (2016,2016),
@@ -82,17 +82,18 @@ class Spreadsheet(models.Model):
     organisation = models.ForeignKey(Organisation)
     comment = models.TextField(null=True,blank=True)
     multiyear_comment = models.TextField(null=True,blank=True)
-    
+    updated = models.DateTimeField(auto_now=True, null=True, blank=True)
+
     def get_absolute_url(self):
         return reverse("core.views.edit",args=[self.year])
-    
+
     def year_translate(self):
         val = self.year
         if val is None or val=="":
             return ""
         else:
             return dict(Spreadsheet.YEAR_CHOICES)[val]
-    
+
 class Entry(models.Model):
     coordinates = models.CharField(max_length=300,editable=False)
     amount = models.DecimalField(max_digits=99, decimal_places=2,blank=True,null=True)
@@ -220,7 +221,7 @@ class Entry(models.Model):
             return dict(Entry.APPEAL_STATUS_CHOICES)[val]
     class Meta:
         verbose_name_plural = "entries"
-        
+
     def save(self, *args, **kwargs):
         #Coordinates are grant|concess|pledge|recip|sector|channel|facility
         coord_list = [
@@ -236,7 +237,7 @@ class Entry(models.Model):
         ]
         self.coordinates = "|".join(coord_list)
         super(Entry, self).save(*args, **kwargs)
-        
+
     def save_reverse(self, *args, **kwargs):
         self.loan_or_grant = self.loan_or_grant_lookup()
         self.concessional = self.concessional_lookup()
@@ -249,5 +250,3 @@ class Entry(models.Model):
         self.appeal = self.appeal_lookup()
         self.appeal_status = self.appeal_status_lookup()
         super(Entry, self).save(*args, **kwargs)
-
-

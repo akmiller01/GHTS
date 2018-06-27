@@ -52,11 +52,11 @@ def edit(request,year):
     facilities = Entry.FACILITY_CHOICES
     appeal_statuses = Entry.APPEAL_STATUS_CHOICES
     years = Spreadsheet.YEAR_CHOICES
-    #France, ISDB want 2016
+    #France, ISDB wanted 2016, keeping option to separate them.
     if organisation.name in ["France","Islamic Development Bank"]:
-        filtered_years = (years[0],) + years[-3:]
+        filtered_years = years[-2:]
     else:
-        filtered_years = years[-3:]
+        filtered_years = years[-2:]
     year = int(year)
     year_verbose = dict(years)[year]
     if request.method == "POST":
@@ -119,7 +119,7 @@ def edit(request,year):
             #Sector grants
             sg = entries.filter(spreadsheet=spreadsheet,loan_or_grant="G",concessional=True,appeal=False,facility="",channel_of_delivery="",sector__isnull=False)
             sg_sum = sg.values('recipient').annotate(total = Sum('amount')).order_by('recipient')
-            sg_sum_obj = {this_sum['recipient']:this_sum['total'] for this_sum in sg_sum} 
+            sg_sum_obj = {this_sum['recipient']:this_sum['total'] for this_sum in sg_sum}
             #Channel grants
             cg = entries.filter(spreadsheet=spreadsheet,loan_or_grant="G",concessional=True,appeal=False,facility="",sector__isnull=True)
             cg_sum = cg.values('recipient').annotate(total = Sum('amount')).order_by('recipient').exclude(channel_of_delivery="")
@@ -145,7 +145,7 @@ def edit(request,year):
             #Loans table (both concessional and non-concessional)
             lt = entries.filter(spreadsheet=spreadsheet,loan_or_grant="L",sector__isnull=True,channel_of_delivery="").exclude(pledge_or_disbursement="P")
             lt_sum = lt.values('recipient').annotate(total = Sum('amount')).order_by('recipient')
-            lt_sum_obj = {this_sum['recipient']:this_sum['total'] for this_sum in lt_sum} 
+            lt_sum_obj = {this_sum['recipient']:this_sum['total'] for this_sum in lt_sum}
             #Sector loans
             sl = entries.filter(spreadsheet=spreadsheet,loan_or_grant="L",sector__isnull=False)
             sl_sum = sl.values('recipient').annotate(total = Sum('amount')).order_by('recipient')
@@ -153,7 +153,7 @@ def edit(request,year):
             #Channel loans
             cl = entries.filter(spreadsheet=spreadsheet,loan_or_grant="L")
             cl_sum = cl.values('recipient').annotate(total = Sum('amount')).order_by('recipient').exclude(channel_of_delivery="")
-            cl_sum_obj = {this_sum['recipient']:this_sum['total'] for this_sum in cl_sum} 
+            cl_sum_obj = {this_sum['recipient']:this_sum['total'] for this_sum in cl_sum}
             #Compare loans
             for recipient,recipient_name in recipients:
                 total_loans = 0
@@ -171,7 +171,7 @@ def edit(request,year):
                         warnings.append("Warning: Total loans (concessional and non-concessional) do not equal loans by channel for %s. Total loans are greater by %s" % (recipient_name,(total_loans-loan_channels)))
                     if total_loans<loan_channels:
                         warnings.append("Warning: Total loans (concessional and non-concessional) do not equal loans by channel for %s. Loans by channel are greater by %s" % (recipient_name,(loan_channels-total_loans)))
-                
+
         else:
             form = SpreadsheetForm()
             entries = []
@@ -279,11 +279,11 @@ def adminEdit(request,slug,year):
             #Grants table
             gt = entries.filter(spreadsheet=spreadsheet,loan_or_grant="G",concessional=True,facility="",channel_of_delivery="",sector__isnull=True).exclude(pledge_or_disbursement="P")
             gt_sum = gt.values('recipient').annotate(total = Sum('amount')).order_by('recipient')
-            gt_sum_obj = {this_sum['recipient']:this_sum['total'] for this_sum in gt_sum} 
+            gt_sum_obj = {this_sum['recipient']:this_sum['total'] for this_sum in gt_sum}
             #Sector grants
             sg = entries.filter(spreadsheet=spreadsheet,loan_or_grant="G",concessional=True,facility="",channel_of_delivery="",sector__isnull=False)
             sg_sum = sg.values('recipient').annotate(total = Sum('amount')).order_by('recipient')
-            sg_sum_obj = {this_sum['recipient']:this_sum['total'] for this_sum in sg_sum} 
+            sg_sum_obj = {this_sum['recipient']:this_sum['total'] for this_sum in sg_sum}
             #Channel grants
             cg = entries.filter(spreadsheet=spreadsheet,loan_or_grant="G",concessional=True,facility="",sector__isnull=True)
             cg_sum = cg.values('recipient').annotate(total = Sum('amount')).order_by('recipient').exclude(channel_of_delivery="")
@@ -309,7 +309,7 @@ def adminEdit(request,slug,year):
             #Loans table (both concessional and non-concessional)
             lt = entries.filter(spreadsheet=spreadsheet,loan_or_grant="L",sector__isnull=True,channel_of_delivery="").exclude(pledge_or_disbursement="P")
             lt_sum = lt.values('recipient').annotate(total = Sum('amount')).order_by('recipient')
-            lt_sum_obj = {this_sum['recipient']:this_sum['total'] for this_sum in lt_sum} 
+            lt_sum_obj = {this_sum['recipient']:this_sum['total'] for this_sum in lt_sum}
             #Sector loans
             sl = entries.filter(spreadsheet=spreadsheet,loan_or_grant="L",sector__isnull=False)
             sl_sum = sl.values('recipient').annotate(total = Sum('amount')).order_by('recipient')
@@ -317,7 +317,7 @@ def adminEdit(request,slug,year):
             #Channel loans
             cl = entries.filter(spreadsheet=spreadsheet,loan_or_grant="L")
             cl_sum = cl.values('recipient').annotate(total = Sum('amount')).order_by('recipient').exclude(channel_of_delivery="")
-            cl_sum_obj = {this_sum['recipient']:this_sum['total'] for this_sum in cl_sum} 
+            cl_sum_obj = {this_sum['recipient']:this_sum['total'] for this_sum in cl_sum}
             #Compare loans
             for recipient,recipient_name in recipients:
                 total_loans = 0
@@ -335,7 +335,7 @@ def adminEdit(request,slug,year):
                         warnings.append("Warning: Total loans (concessional and non-concessional) do not equal loans by channel for %s. Total loans are greater by %s" % (recipient_name,(total_loans-loan_channels)))
                     if total_loans<loan_channels:
                         warnings.append("Warning: Total loans (concessional and non-concessional) do not equal loans by channel for %s. Loans by channel are greater by %s" % (recipient_name,(loan_channels-total_loans)))
-                
+
         else:
             form = SpreadsheetForm()
             entries = []
@@ -359,18 +359,20 @@ def csv(request,slug):
     header = ["Organisation","Loan or grant","Concessional","Status"
               ,"Recipient","Sector","Channel of delivery","Year","Amount","Currency"
               ,"Facility"
-              ,"Comment"]
+              ,"Comment"
+              ,"Last updated"]
     writer.writerow(header)
     for entry in entries:
         year = entry.spreadsheet.year_translate()
         #Edit here for future years
         if organisation.name in ["France","Islamic Development Bank"]:
-            filtered_years = [2016,2017,2018,"2019-2020"]
+            filtered_years = [2018,"2019-2020"]
         else:
-            filtered_years = [2017,2018,"2019-2020"]
+            filtered_years = [2018,"2019-2020"]
         if year in filtered_years:
             comment = entry.spreadsheet.comment
             currency = entry.spreadsheet.currency
+            updated = entry.spreadsheet.updated.strftime("%Y-%m-%d %H:%M")
             writer.writerow([organisation
                              ,entry.loan_or_grant_translate()
                              ,entry.concessional_translate()
@@ -383,6 +385,7 @@ def csv(request,slug):
                              ,currency
                              ,entry.facility_translate()
                              ,comment
+                             ,updated
                              ])
     return response
 
@@ -396,13 +399,14 @@ def csv_all(request):
         writer = csvwriter(response,encoding='utf-8')
         header = ["Organisation","Loan or grant","Concessional","Appeal","Appeal status","Status"
                   ,"Recipient","Sector","Channel of delivery","Year","Amount","Currency"
-                  ,"Facility","Comment"]
+                  ,"Facility","Comment","Last updated"]
         writer.writerow(header)
         for entry in entries:
             organisation = entry.spreadsheet.organisation
             year = entry.spreadsheet.year_translate()
             comment = entry.spreadsheet.comment
             currency = entry.spreadsheet.currency
+            updated = entry.spreadsheet.updated.strftime("%Y-%m-%d %H:%M")
             writer.writerow([organisation
                              ,entry.loan_or_grant_translate()
                              ,entry.concessional_translate()
@@ -417,6 +421,7 @@ def csv_all(request):
                              ,currency
                              ,entry.facility_translate()
                              ,comment
+                             ,updated
                              ])
         return response
     else:
