@@ -17,9 +17,9 @@
             .save{margin-top:5px;}
             .warning{color:red;font-weight:bold;}
         </style>
-        {% load staticfiles %}    
+        {% load staticfiles %}
             <link rel=stylesheet href="{% static "core/css/info.css" %}" type="text/css">
-    {% endblock %}    
+    {% endblock %}
     {% block content %}
         <div id="content" style="width:100%">
     <h1>Transactions for {{contact.organisation}} in {{year_verbose}}</h1>
@@ -30,7 +30,7 @@
     {% endif %}
     >
     <p>
-        Information sought via this form tracks progress made in 2017 by donors against pledges made at the 2017 Brussels conference, included on the ‘Co-hosts statement annex: fundraising’, found <a href="http://www.consilium.europa.eu/en/meetings/international-summit/2017/04/04-05/">here</a>.
+        Information sought via this form tracks progress made in 2018 and for 2019–2020 by donors against pledges made at the April 2018 Brussels conference, included on the ‘Co-chairs’ statement annex: fundraising’, found <a href="http://www.consilium.europa.eu/en/meetings/international-ministerial-meetings/2018/04/24-25/">here</a>.
     </p>
     <p>
         Complete all fields on contributions (comprised of commitments, contracted funding and disbursements). If no commitment/contracted funding/disbursement was made please write '0'. If information is not yet available please leave blank.
@@ -73,7 +73,7 @@
         Use the multi-year funding box to provide details (contributions to date, number of years covered, specific institutions etc) about multi-year agreements you have in place. If relevant please explain if these cover UN coordinated appeals.
     </p>
     <p>
-    Email <a href="mailto:syriatracking@devinit.org">syriatracking@devinit.org</a> for any clarifications or if you have any issues. 
+    Email <a href="mailto:syriatracking@devinit.org">syriatracking@devinit.org</a> for any clarifications or if you have any issues.
     </p>
     <h3>Key definitions:</h3>
     <p>
@@ -86,7 +86,7 @@
     </p>
     <p>
         <b>
-            Commitment 
+            Commitment
         </b><br/>
         A firm plan expressed in writing and backed by the necessary funds, carried out by an official donor to provide specified assistance to a recipient country government, organisation or implementing agency. In the context of the tracking reports, commitments refer to those funds which have been committed but not yet contracted or disbursed.<br/>
         In the case of loans, the amount committed by financial institutions should be understood as the amount of loans formally approved by their institutions.
@@ -122,24 +122,24 @@
         <b>
             Multi-sector
         </b><br/>
-        In the context of sectoral disaggregation of grants and for the purposes of this form, multi-sector refers primarily to projects and activities with no one dominant sector and often applies to assistance for refugees provided and/or coordinated by the UN High Commissioner for Refugees (UNHCR). This definition is in line with the Inter-Agency Standing Committee's (IASC) sectoral definitions. 
+        In the context of sectoral disaggregation of grants and for the purposes of this form, multi-sector refers primarily to projects and activities with no one dominant sector and often applies to assistance for refugees provided and/or coordinated by the UN High Commissioner for Refugees (UNHCR). This definition is in line with the Inter-Agency Standing Committee's (IASC) sectoral definitions.
     </p>
     <p>
         <b>
             Multi-country
         </b><br/>
-        Pledges and funding labelled as 'multi-country' in the reports refer to instances where funding is directed (or will be directed) to two or more (but not all) specified countries in the Syria region. This differs from pledges and funding labelled as going to the 'region', which is specified as funding for the regional response by donors and may go to all countries in the region; as well as 'not defined', which refers to pledges and funding where no country or regional detail has been provided.  
+        Pledges and funding labelled as 'multi-country' in the reports refer to instances where funding is directed (or will be directed) to two or more (but not all) specified countries in the Syria region. This differs from pledges and funding labelled as going to the 'region', which is specified as funding for the regional response by donors and may go to all countries in the region; as well as 'not defined', which refers to pledges and funding where no country or regional detail has been provided.
     </p>
     <p>
         <b>
             Unearmarked
         </b><br/>
-        In the context of this form, unearmarked refers to funding that is deliberately not directed to any particular sector by the donor. This differs from the sector 'not specified' where details of sector-specific allocation are not available from the reports provided by the donors.  
+        In the context of this form, unearmarked refers to funding that is deliberately not directed to any particular sector by the donor. This differs from the sector 'not specified' where details of sector-specific allocation are not available from the reports provided by the donors.
     </p>
     </div>
         <label>Change year:</label>
         <select id="year">
-            
+
             {% for year1, year2 in years%}
                 {% if year1 == selected_year %}
                 <option value="{{year1}}" selected="selected">{{year2}}</option>
@@ -361,7 +361,7 @@
     {% endif %}
     </table>
     {% endif %}
-    {% if contact.organisation.grant_making %}    
+    {% if contact.organisation.grant_making %}
     <div class="titleWrap">
         <h2>Grant contributions by channel of delivery</h2>
        <!-- <div class="info" onclick="toggle('channel')"></div>
@@ -386,7 +386,7 @@
     {% endfor %}
     </table>
     {% endif %}
-    {% if contact.organisation.loan_making %}    
+    {% if contact.organisation.loan_making %}
     <div class="titleWrap">
         <h2>Loan contributions by channel of delivery</h2>
        <!-- <div class="info" onclick="toggle('channel')"></div>
@@ -467,22 +467,22 @@
     $('input').on("focus",GetCurrentCell);
 
     $(document).keydown(function(e){
-        if (e.keyCode == 37) { 
+        if (e.keyCode == 37) {
            currentCell--;
            ChangeCurrentCell();
            return false;
         }
-        if (e.keyCode == 38) { 
+        if (e.keyCode == 38) {
            currentRow--;
            ChangeCurrentCell();
            return false;
         }
-        if (e.keyCode == 39) { 
+        if (e.keyCode == 39) {
            currentCell++;
            ChangeCurrentCell();
            return false;
         }
-        if (e.keyCode == 40) { 
+        if (e.keyCode == 40) {
            currentRow++;
            ChangeCurrentCell();
            return false;
