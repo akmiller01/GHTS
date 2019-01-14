@@ -43,10 +43,6 @@
     </p>
     <p>The form data is organised by calendar year (January to December), not fiscal year.</p>
 <!--    <p>Before submitting the form, check the data validation fields.</p>-->
-    {% if contact.organisation.government %}
-        <p>Please do not report contributions to the listed multi-donor mechanisms in 'Grant contributions by sector' or 'Grant contributions by channel of delivery', as these will be reported by the respective mechanism.</p>
-        <p>Please ensure all contributions to/via multi-donor mechanisms also reported in the 'Grants' table, for example under 'Turkey', 'multi-country' or 'regional.'</p>
-    {% endif %}
     {% if contact.organisation.bank %}
     <p>Please specify funding to sectors not listed under 'Loan contributions by sector' in the empty rows provided in that table and enter sector names.</p>
     {% endif %}
@@ -207,40 +203,6 @@
                 <td><input type="text" name="total_grants" id="{{rcode}}_total" readonly/></td>
             {% endfor %}
         </tr>
-        <tr>
-            <td><b>Remaining to be contributed of the pledge</b></td>
-            {% for rcode, recip in recipients %}
-                <td><input type="text" name="remaining_grants" id="{{rcode}}_remaining" readonly/></td>
-            {% endfor %}
-        </tr>
-    </table>
-    {% endif %}
-    {% if contact.organisation.government %}
-    <div class="titleWrap">
-        <h2>Contributions via multi-donor mechanisms</h2>
-<!--        <div class="info" onclick="toggle('facility')"></div>
-        <div class="popupWrap">
-            <div class="popup" id="facility">Please include in the first column contributions to TRF that were part of the London conference. Please include in the second column contributions to TRF that were not part of the London conference.</div>
-        </div>-->
-    </div>
-    <table>
-        <tr>
-            <th></th>
-            {% for fcode, facility in facilities %}
-                <th>{{facility}}</th>
-            {% endfor %}
-        </tr>
-    {% for scode, status in statuses %}
-        <tr>
-            <td><b>{{status}}</b></td>
-            {% for fcode, facility in facilities %}
-                <td><input type="text" name="G|C|{{scode}}|{{fcode}}|||{{fcode}}|N|"/
-                {% if status == "Pledged" %}
-                {% endif %}
-                ></td>
-            {% endfor %}
-        </tr>
-    {% endfor %}
     </table>
     {% endif %}
     {% if contact.organisation.loan_making %}
@@ -361,56 +323,6 @@
     {% endif %}
     </table>
     {% endif %}
-    {% if contact.organisation.grant_making %}
-    <div class="titleWrap">
-        <h2>Grant contributions by channel of delivery</h2>
-       <!-- <div class="info" onclick="toggle('channel')"></div>
-        <div class="popupWrap">
-            <div class="popup" id="channel">Information on channel contributions - grants</div>
-        </div>-->
-    </div>
-    <table>
-        <tr>
-            <th></th>
-            {% for rcode, recip in recipients %}
-                <th>{{recip}}</th>
-            {% endfor %}
-        </tr>
-    {% for ccode, channel in channels %}
-        <tr>
-            <td><b>{{channel}}</b></td>
-            {% for rcode, recip in recipients %}
-                <td><input type="text" name="G|C||{{rcode}}||{{ccode}}||N|"/></td>
-            {% endfor %}
-        </tr>
-    {% endfor %}
-    </table>
-    {% endif %}
-    {% if contact.organisation.loan_making %}
-    <div class="titleWrap">
-        <h2>Loan contributions by channel of delivery</h2>
-       <!-- <div class="info" onclick="toggle('channel')"></div>
-        <div class="popupWrap">
-            <div class="popup" id="channel">Information on channel contributions - grants</div>
-        </div>-->
-    </div>
-    <table>
-        <tr>
-            <th></th>
-            {% for rcode, recip in recipients %}
-                <th>{{recip}}</th>
-            {% endfor %}
-        </tr>
-    {% for ccode, channel in channels %}
-        <tr>
-            <td><b>{{channel}}</b></td>
-            {% for rcode, recip in recipients %}
-                <td><input type="text" name="L|||{{rcode}}||{{ccode}}||N|"/></td>
-            {% endfor %}
-        </tr>
-    {% endfor %}
-    </table>
-    {% endif %}
         {% for warning in warnings %}
             <p class="warning">{{warning}}</p>
         {% endfor %}
@@ -504,7 +416,6 @@
                 {% endif %}
             {% endfor %}
             $("input#{{rcode}}_total").val(isNaN(committed)?"":"{{currency.symbol}}"+committed.toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,"))
-            $("input#{{rcode}}_remaining").val(isNaN(pledged-committed)?"":"{{currency.symbol}}"+(pledged-committed).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,"))
         {% endfor %}
 //    Functions to warn if leaving and changes made
     $('input').change(function() {
@@ -527,7 +438,6 @@
                 {% endif %}
             {% endfor %}
             $("input#{{rcode}}_total").val(isNaN(committed)?"":"{{currency.symbol}}"+committed.toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,"))
-            $("input#{{rcode}}_remaining").val(isNaN(pledged-committed)?"":"{{currency.symbol}}"+(pledged-committed).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,"))
         {% endfor %}
     });
     $('textarea').change(function() {
