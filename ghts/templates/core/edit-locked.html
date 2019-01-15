@@ -70,7 +70,7 @@
     In order to check your data, press ‘Export previously saved data’.
     </p>
     <p>
-        Use the multi-year funding box to provide details (contributions to date, number of years covered, specific institutions etc) about multi-year agreements you have in place. If relevant please explain if these cover UN coordinated appeals.
+        Please use the comments box to provide details on existing multi-year agreements (contributions to date, number of years covered, specific institutions etc). If relevant please explain if these cover UN coordinated appeals.
     </p>
     <p>
     Email <a href="mailto:syriatracking@devinit.org">syriatracking@devinit.org</a> for any clarifications or if you have any issues.
@@ -170,11 +170,6 @@
             <label for="{{ form.comment.id_for_label }}">Comments:</label>
             {{ form.comment }}
         </div>
-        <div class="fieldWrapper" style="padding-top:10px">
-            {{ form.multiyear_comment.errors }}
-            <label for="{{ form.multiyear_comment.id_for_label }}">Multi-year details:</label>
-            {{ form.multiyear_comment }}
-        </div>
     {% if contact.organisation.grant_making %}
     <div class="titleWrap">
         <h2>Grants</h2>
@@ -205,12 +200,6 @@
             <td><b>Total</b></td>
             {% for rcode, recip in recipients %}
                 <td><input type="text" name="total_grants" id="{{rcode}}_total" readonly/></td>
-            {% endfor %}
-        </tr>
-        <tr>
-            <td><b>Remaining to be contributed of the pledge</b></td>
-            {% for rcode, recip in recipients %}
-                <td><input type="text" name="remaining_grants" id="{{rcode}}_remaining" readonly/></td>
             {% endfor %}
         </tr>
     </table>
@@ -386,31 +375,6 @@
     {% endfor %}
     </table>
     {% endif %}
-    {% if contact.organisation.loan_making %}
-    <div class="titleWrap">
-        <h2>Loan contributions by channel of delivery</h2>
-       <!-- <div class="info" onclick="toggle('channel')"></div>
-        <div class="popupWrap">
-            <div class="popup" id="channel">Information on channel contributions - grants</div>
-        </div>-->
-    </div>
-    <table>
-        <tr>
-            <th></th>
-            {% for rcode, recip in recipients %}
-                <th>{{recip}}</th>
-            {% endfor %}
-        </tr>
-    {% for ccode, channel in channels %}
-        <tr>
-            <td><b>{{channel}}</b></td>
-            {% for rcode, recip in recipients %}
-                <td><input type="text" name="L|||{{rcode}}||{{ccode}}||N|"/></td>
-            {% endfor %}
-        </tr>
-    {% endfor %}
-    </table>
-    {% endif %}
         {% for warning in warnings %}
             <p class="warning">{{warning}}</p>
         {% endfor %}
@@ -504,7 +468,6 @@
                 {% endif %}
             {% endfor %}
             $("input#{{rcode}}_total").val(isNaN(committed)?"":"{{currency.symbol}}"+committed.toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,"))
-            $("input#{{rcode}}_remaining").val(isNaN(pledged-committed)?"":"{{currency.symbol}}"+(pledged-committed).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,"))
         {% endfor %}
 //    Functions to warn if leaving and changes made
     $('input').change(function() {
@@ -527,7 +490,6 @@
                 {% endif %}
             {% endfor %}
             $("input#{{rcode}}_total").val(isNaN(committed)?"":"{{currency.symbol}}"+committed.toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,"))
-            $("input#{{rcode}}_remaining").val(isNaN(pledged-committed)?"":"{{currency.symbol}}"+(pledged-committed).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,"))
         {% endfor %}
     });
     $('textarea').change(function() {

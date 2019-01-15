@@ -151,9 +151,9 @@ def edit(request,year):
             sl_sum = sl.values('recipient').annotate(total = Sum('amount')).order_by('recipient')
             sl_sum_obj = {this_sum['recipient']:this_sum['total'] for this_sum in sl_sum}
             #Channel loans
-            cl = entries.filter(spreadsheet=spreadsheet,loan_or_grant="L")
-            cl_sum = cl.values('recipient').annotate(total = Sum('amount')).order_by('recipient').exclude(channel_of_delivery="")
-            cl_sum_obj = {this_sum['recipient']:this_sum['total'] for this_sum in cl_sum}
+            # cl = entries.filter(spreadsheet=spreadsheet,loan_or_grant="L")
+            # cl_sum = cl.values('recipient').annotate(total = Sum('amount')).order_by('recipient').exclude(channel_of_delivery="")
+            # cl_sum_obj = {this_sum['recipient']:this_sum['total'] for this_sum in cl_sum}
             #Compare loans
             for recipient,recipient_name in recipients:
                 total_loans = 0
@@ -165,12 +165,12 @@ def edit(request,year):
                         warnings.append("Warning: Total loans (concessional and non-concessional) do not equal loans by sector for %s. Total loans are greater by %s" % (recipient_name,(total_loans-loan_sectors)))
                     if total_loans<loan_sectors:
                         warnings.append("Warning: Total loans (concessional and non-concessional) do not equal loans by sector for %s. Loans by sector are greater by %s" % (recipient_name,(loan_sectors-total_loans)))
-                if recipient in cl_sum_obj:
-                    loan_channels = cl_sum_obj[recipient]
-                    if total_loans>loan_channels:
-                        warnings.append("Warning: Total loans (concessional and non-concessional) do not equal loans by channel for %s. Total loans are greater by %s" % (recipient_name,(total_loans-loan_channels)))
-                    if total_loans<loan_channels:
-                        warnings.append("Warning: Total loans (concessional and non-concessional) do not equal loans by channel for %s. Loans by channel are greater by %s" % (recipient_name,(loan_channels-total_loans)))
+                # if recipient in cl_sum_obj:
+                #     loan_channels = cl_sum_obj[recipient]
+                #     if total_loans>loan_channels:
+                #         warnings.append("Warning: Total loans (concessional and non-concessional) do not equal loans by channel for %s. Total loans are greater by %s" % (recipient_name,(total_loans-loan_channels)))
+                #     if total_loans<loan_channels:
+                #         warnings.append("Warning: Total loans (concessional and non-concessional) do not equal loans by channel for %s. Loans by channel are greater by %s" % (recipient_name,(loan_channels-total_loans)))
 
         else:
             form = SpreadsheetForm()
@@ -315,9 +315,9 @@ def adminEdit(request,slug,year):
             sl_sum = sl.values('recipient').annotate(total = Sum('amount')).order_by('recipient')
             sl_sum_obj = {this_sum['recipient']:this_sum['total'] for this_sum in sl_sum}
             #Channel loans
-            cl = entries.filter(spreadsheet=spreadsheet,loan_or_grant="L")
-            cl_sum = cl.values('recipient').annotate(total = Sum('amount')).order_by('recipient').exclude(channel_of_delivery="")
-            cl_sum_obj = {this_sum['recipient']:this_sum['total'] for this_sum in cl_sum}
+            # cl = entries.filter(spreadsheet=spreadsheet,loan_or_grant="L")
+            # cl_sum = cl.values('recipient').annotate(total = Sum('amount')).order_by('recipient').exclude(channel_of_delivery="")
+            # cl_sum_obj = {this_sum['recipient']:this_sum['total'] for this_sum in cl_sum}
             #Compare loans
             for recipient,recipient_name in recipients:
                 total_loans = 0
@@ -329,12 +329,12 @@ def adminEdit(request,slug,year):
                         warnings.append("Warning: Total loans (concessional and non-concessional) do not equal loans by sector for %s. Total loans are greater by %s" % (recipient_name,(total_loans-loan_sectors)))
                     if total_loans<loan_sectors:
                         warnings.append("Warning: Total loans (concessional and non-concessional) do not equal loans by sector for %s. Loans by sector are greater by %s" % (recipient_name,(loan_sectors-total_loans)))
-                if recipient in cl_sum_obj:
-                    loan_channels = cl_sum_obj[recipient]
-                    if total_loans>loan_channels:
-                        warnings.append("Warning: Total loans (concessional and non-concessional) do not equal loans by channel for %s. Total loans are greater by %s" % (recipient_name,(total_loans-loan_channels)))
-                    if total_loans<loan_channels:
-                        warnings.append("Warning: Total loans (concessional and non-concessional) do not equal loans by channel for %s. Loans by channel are greater by %s" % (recipient_name,(loan_channels-total_loans)))
+                # if recipient in cl_sum_obj:
+                #     loan_channels = cl_sum_obj[recipient]
+                #     if total_loans>loan_channels:
+                #         warnings.append("Warning: Total loans (concessional and non-concessional) do not equal loans by channel for %s. Total loans are greater by %s" % (recipient_name,(total_loans-loan_channels)))
+                #     if total_loans<loan_channels:
+                #         warnings.append("Warning: Total loans (concessional and non-concessional) do not equal loans by channel for %s. Loans by channel are greater by %s" % (recipient_name,(loan_channels-total_loans)))
 
         else:
             form = SpreadsheetForm()
