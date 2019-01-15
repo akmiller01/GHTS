@@ -357,7 +357,8 @@ def csv(request,slug):
     response['Content-Disposition'] = 'attachment; filename="'+slug+'.csv"'
     writer = csvwriter(response,encoding='utf-8')
     header = ["Organisation","Loan or grant","Concessional","Status"
-              ,"Recipient","Sector","Year","Amount","Currency"
+              ,"Recipient","Sector","Channel of delivery","Year","Amount","Currency"
+              ,"Facility"
               ,"Comment"
               ,"Last updated"]
     writer.writerow(header)
@@ -378,9 +379,11 @@ def csv(request,slug):
                              ,entry.pledge_or_disbursement_translate()
                              ,entry.recipient_translate()
                              ,entry.sector
+                             ,entry.channel_of_delivery_translate()
                              ,year
                              ,entry.amount
                              ,currency
+                             ,entry.facility_translate()
                              ,comment
                              ,updated
                              ])
