@@ -5,6 +5,7 @@ services:
     image: postgres
     volumes:
       - ghtsdata:/var/lib/postgresql/data
+      - ./syria.sql:/docker-entrypoint-initdb.d/syria.sql
   web:
     build:
       context: .
