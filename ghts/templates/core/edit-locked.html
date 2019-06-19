@@ -25,12 +25,15 @@
     <h1>Transactions for {{contact.organisation}} in {{year_verbose}}</h1>
     <h3>Instructions to fill in the form <span onclick="$('#instructions').slideToggle()" id="instructTitle">(show/hide)</span></h3>
     <div id="instructions"
-    {% if spreadsheet_exists or selected_year == 3 or selected_year == 4 %}
+    {% if spreadsheet_exists or selected_year == 6 %}
         style="display:none;"
     {% endif %}
     >
     <p>
-        Information sought via this form tracks progress made in 2018 and for 2019–2020 by donors against pledges made at the April 2018 Brussels conference, included on the ‘Co-chairs’ statement annex: fundraising’, found <a href="http://www.consilium.europa.eu/en/meetings/international-ministerial-meetings/2018/04/24-25/">here</a>.
+        Information sought via this form tracks progress made in 2019 and for 2020 and beyond by donors against pledges made at the March 2019 Brussels conference, included on the ‘Co-chairs’ statement annex: fundraising’, found <a href="https://www.consilium.europa.eu/media/38579/14-03-2019-pledging-statement_final_rev.pdf">here</a>.
+    </p>
+    <p>
+        When reporting contributions for 2020 and beyond, please ensure these refer to the pledges made at the conference for the same time period.
     </p>
     <p>
         Complete all fields on contributions (comprised of commitments, contracted funding and disbursements). If no commitment/contracted funding/disbursement was made please write '0'. If information is not yet available please leave blank.
@@ -68,9 +71,6 @@
     <p>
     To save and submit your data, press ‘Save’ at the bottom of the page.
     In order to check your data, press ‘Export previously saved data’.
-    </p>
-    <p>
-        Please use the comments box to provide details on existing multi-year agreements (contributions to date, number of years covered, specific institutions etc). If relevant please explain if these cover UN coordinated appeals.
     </p>
     <p>
     Email <a href="mailto:syriatracking@devinit.org">syriatracking@devinit.org</a> for any clarifications or if you have any issues.
