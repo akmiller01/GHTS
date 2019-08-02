@@ -10,4 +10,4 @@ WORKDIR /src
 RUN pip install -r requirements.txt
 RUN python manage.py collectstatic --noinput
 
-CMD gunicorn -w 2 -b 0.0.0.0:80 ghts.wsgi
+CMD gunicorn -w 2 -b 0.0.0.0:80 ghts.wsgi -t 600 --keep-alive 600
