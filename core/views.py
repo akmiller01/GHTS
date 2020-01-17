@@ -52,11 +52,11 @@ def edit(request,year):
     facilities = Entry.FACILITY_CHOICES
     appeal_statuses = Entry.APPEAL_STATUS_CHOICES
     years = Spreadsheet.YEAR_CHOICES
-    #France, ISDB wanted 2016, keeping option to separate them.
-    if organisation.name in ["France","Islamic Development Bank"]:
-        filtered_years = years[-2:]
+    #Filter years for IFIs
+    if organisation.name in ["Islamic Development Bank", "EIB", "EBRD", "World Bank"]:
+        filtered_years = years[-1:]
     else:
-        filtered_years = years[-2:]
+        filtered_years = years[-3:-1]
     year = int(year)
     year_verbose = dict(years)[year]
     if request.method == "POST":
@@ -365,10 +365,10 @@ def csv(request,slug):
     for entry in entries:
         year = entry.spreadsheet.year_translate()
         #Edit here for future years
-        if organisation.name in ["France","Islamic Development Bank"]:
-            filtered_years = [2018,"2019-2020"]
+        if organisation.name in ["Islamic Development Bank", "EIB", "EBRD", "World Bank"]:
+            filtered_years = [year_choice[0] for year_choice in Spreadsheet.YEAR_CHOICES[-1:]]
         else:
-            filtered_years = [2018,"2019-2020"]
+            filtered_years = [year_choice[0] for year_choice in Spreadsheet.YEAR_CHOICES[-3:-1]]
         if year in filtered_years:
             comment = entry.spreadsheet.comment
             currency = entry.spreadsheet.currency

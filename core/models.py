@@ -77,7 +77,8 @@ class Spreadsheet(models.Model):
         (3,2018),
         (4,"2019-2020"),
         (5,2019),
-        (6,"2020 and beyond")
+        (6,"2020 and beyond"),
+        (7,"2019 and beyond")
     )
     year = models.IntegerField(choices=YEAR_CHOICES)
     currency = models.ForeignKey(Currency)
